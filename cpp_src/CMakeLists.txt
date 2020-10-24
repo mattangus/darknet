@@ -8,9 +8,13 @@ find_package(CUDA  REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
 # find_package(CUDNN REQUIRED)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Link runTests with what we want to test and the GTest and pthread library
-add_executable(runTests test/tests.cpp tensor/tensor.cpp)
+CUDA_ADD_EXECUTABLE(runTests test/tests.cpp utils/signal_handler.cpp gpu/dark.cu gpu/tensor.cu)
+
+SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 

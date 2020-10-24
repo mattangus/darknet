@@ -33,6 +33,16 @@ namespace tensor
                 ret *= d;
             return ret;
         }
+
+        bool operator==(const TensorShape& other)
+        {
+            if(other.dims.size() != dims.size())
+                return false;
+            for(size_t i = 0; i < dims.size(); i++)
+                if(dims[i] != other.dims[i])
+                    return false;
+            return true;
+        }
         // friend std::ostream& operator<< (std::ostream& out, const TensorShape& obj);
     };
     

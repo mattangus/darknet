@@ -9,12 +9,14 @@
 
 namespace darknet
 {
+
 namespace layer
 {
     /**
      * @brief Basic layer class to be inherited.
      * TODO: need logic for shapes and input size verification.
      */
+    template <DeviceType D>
     class Layer
     {
     protected:
@@ -23,7 +25,7 @@ namespace layer
          * @brief Function for checking that the input shape is compatable
          * Analogous to parts of make_*_layer
          */
-        virtual void verifyShape() = 0;
+        // virtual void verifyShape() = 0;
         /**
          * @brief Initialize any memory (GPU or CPU) that is required.
          * Analogous to parts of make_*_layer
@@ -32,7 +34,13 @@ namespace layer
 
 
     public:
-        Layer(std::shared_ptr<Layer> inputLayer, LayerType type);
+        Layer(std::shared_ptr<Layer> inputLayer, LayerType type)
+            : inputLayer(inputLayer), type(type)
+        {
+            // verifyShape();
+            init();
+        }
+    
 
         /**
          * @brief Compute the forward pass of this layer
@@ -61,7 +69,7 @@ namespace layer
         const LayerType type;
         
         // The output tensor for this layer.
-        std::shared_ptr<tensor::Tensor<float>> output;
+        std::shared_ptr<tensor::Tensor<float, D>> output;
     };
 
     

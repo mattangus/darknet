@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <ostream>
+#include <cassert>
 
 #include "types/enum.hpp"
 #include "tensor/tensor_shape.hpp"
@@ -17,13 +18,12 @@ namespace tensor
      * @tparam T Type of data
      * @tparam device device to store data and execute operations on
      */
-    template<typename T, DeviceType device>
+    template<typename T, DeviceType D>
     class TensorBase
     {
     protected:
         DataType dtype;
         T* data = nullptr;
-        TensorShape shape;
 
         /**
          * @brief Hide the constructor so you can't create just the base class. Use Tensor instead
@@ -36,13 +36,14 @@ namespace tensor
         }
 
     public:
+        TensorShape shape;
 
         /**
          * @brief Get the Device of this tensor
          * 
          * @return DeviceType the device
          */
-        DeviceType getDevice() {return device;}
+        DeviceType getDevice() {return D;}
 
         /**
          * @brief Get the pointer to the data. Caution: this can be pointing to cpu or gpu memory.
@@ -50,6 +51,22 @@ namespace tensor
          * @return T* 
          */
         T* ptr() {return data;}
+
+        /**
+         * @brief Apply a function elementwise to this tensor inplace
+         * 
+         * @tparam F 
+         * @param functor struct with a operator() function
+         */
+        template<typename F>
+        void apply(F functor);
+
+        // virtual TensorBase<T, D> copy() = 0;
+
+        // virtual void copyTo(TensorBase& other) = 0;
+
+        // template<typename F>
+        // virtual void apply(F functor, Tensor<T, D>& t1) = 0;
 
         // template<typename T1, DeviceType device1>
         // friend std::ostream& operator<< (std::ostream& out, const TensorBase<T1, device1>& obj);

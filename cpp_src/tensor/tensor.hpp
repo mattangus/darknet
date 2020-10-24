@@ -21,9 +21,6 @@ namespace tensor
         
     public:
 
-        Tensor operator+(Tensor& other);
-        Tensor operator*(Tensor& other);
-
         // template<typename T1, DeviceType device1>
         // friend std::ostream& operator<< (std::ostream& out, const Tensor<T1, device1>& obj);
     };
