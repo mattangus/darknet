@@ -26,15 +26,19 @@ namespace tensor
 
         Tensor(TensorShape& shape) : TensorBase<T, DeviceType::GPUDEVICE>(shape), _device(cuda::device::current::get())
         {
+            
             this->data = static_cast<T*>(_device.memory().allocate(shape.numElem() * sizeof(T)));
-            std::cout << "creating: " << this->data << std::endl;
+        }
+
+        Tensor(const Tensor& other) : TensorBase<T, DeviceType::GPUDEVICE>(other.shape), _device(other._device)
+        {
+            this->data = other.data;
         }
 
         ~Tensor()
         {
             if(this->data)
             {
-                std::cout << "freeing: " << this->data << std::endl;
                 cuda::memory::device::free(this->data);
             }
         }
@@ -57,6 +61,13 @@ namespace tensor
         {
             assert(other.shape == this->shape);
             cuda::memory::copy(other.data, this->data, this->shape.numElem() * sizeof(T));
+        }
+
+        void fromArray(std::vector<T>& vec)
+        {
+            size_t n = this->shape.numElem();
+            assert(vec.size() == n);
+            cuda::memory::copy(this->data, &vec[0], this->shape.numElem() * sizeof(T));
         }
     };
     

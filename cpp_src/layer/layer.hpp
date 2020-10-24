@@ -26,11 +26,6 @@ namespace layer
          * Analogous to parts of make_*_layer
          */
         // virtual void verifyShape() = 0;
-        /**
-         * @brief Initialize any memory (GPU or CPU) that is required.
-         * Analogous to parts of make_*_layer
-         */
-        virtual void init() = 0;
 
 
     public:
@@ -38,7 +33,7 @@ namespace layer
             : inputLayer(inputLayer), type(type)
         {
             // verifyShape();
-            init();
+            // init();
         }
     
 
@@ -70,6 +65,12 @@ namespace layer
         
         // The output tensor for this layer.
         std::shared_ptr<tensor::Tensor<float, D>> output;
+
+        /**
+         * @brief Initialize any memory (GPU or CPU) that is required.
+         * Analogous to parts of make_*_layer
+         */
+        virtual void init() = 0;
     };
 
     

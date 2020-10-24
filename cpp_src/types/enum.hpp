@@ -86,7 +86,8 @@ namespace darknet
         L2NORM,
         EMPTY,
         BLANK,
-        CONTRASTIVE
+        CONTRASTIVE,
+        INPUT
     };
 
     

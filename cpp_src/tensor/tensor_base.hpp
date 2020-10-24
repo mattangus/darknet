@@ -30,12 +30,16 @@ namespace tensor
          * 
          * @param shape shape to create
          */
-        TensorBase(TensorShape& shape) : shape(shape)
+        TensorBase(const TensorShape& shape) : shape(shape)
         {
 
         }
 
     public:
+        /**
+         * @brief Shape of this tensor
+         * 
+         */
         TensorShape shape;
 
         /**
@@ -51,15 +55,6 @@ namespace tensor
          * @return T* 
          */
         T* ptr() {return data;}
-
-        /**
-         * @brief Apply a function elementwise to this tensor inplace
-         * 
-         * @tparam F 
-         * @param functor struct with a operator() function
-         */
-        template<typename F>
-        void apply(F functor);
 
         // virtual TensorBase<T, D> copy() = 0;
 

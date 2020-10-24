@@ -41,6 +41,11 @@ namespace tensor
             }
         }
 
+        /**
+         * @brief Apply an activation function in place to this tensor.
+         * @todo might want to move this somwhere else. Shouldn't be encapsulated here.
+         * @tparam A  type of activation.
+         */
         template<ActivationType A>
         void apply()
         {
@@ -109,6 +114,13 @@ namespace tensor
         {
             assert(other.shape == this->shape);
             std::memcpy(other.data, this->data, this->shape.numElem() * sizeof(T));
+        }
+
+        void fromArray(std::vector<T>& vec)
+        {
+            size_t n = this->shape.numElem();
+            assert(vec.size() == n);
+            std::memcpy(this->data, &vec[0], n * sizeof(T));
         }
 
     };

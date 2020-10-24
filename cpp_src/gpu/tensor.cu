@@ -7,8 +7,18 @@ namespace darknet
 {
 namespace kernel
 {
+    /**
+     * @brief Apply activation function in place.
+     * 
+     * @note This is templated to slightly speed up kernels as the compiler can optimize the switch statement.
+     * 
+     * @tparam T Type of data
+     * @tparam A Activation type
+     * @param data pointer to data array
+     * @param n number of elements in array
+     */
     template<typename T, ActivationType A>
-    __global__ void applyFunctor_kernel(T* data, size_t n)
+    __global__ void applyFunctor(T* data, size_t n)
     {
         CUDA_1D_KERNEL_LOOP(idx, n)
         {        
@@ -67,19 +77,25 @@ namespace kernel
 
 namespace gpu
 {
-
+    /**
+     * @brief Launch the gpu kernel for activations
+     * 
+     * @tparam T Type of data
+     * @tparam A 
+     * @param data 
+     * @param n 
+     */
     template<typename T, ActivationType A>
     void applyFunctor(T* data, size_t n)
     {
         auto grid = get_number_of_blocks(n);
-        // TODO: don't like this, might be solvable with compile time indexing?
-        kernel::applyFunctor_kernel<T, A><<<grid, BLOCK>>>(data, n);
-        // data[idx] = layer::f(data[idx]);
+        kernel::applyFunctor<T, A><<<grid, BLOCK>>>(data, n);
+        // TODO: for some reason the macro doesn't compile. need to fix that.
         if (cudaPeekAtLastError() != cudaSuccess)
             throw std::runtime_error(cudaGetErrorString(cudaPeekAtLastError()));
-        // darknet::gpu::check_error_extended(cudaPeekAtLastError(), __FILE__ " : " __FUNCTION__, __LINE__,  __DATE__ " - " __TIME__);
     }
 
+    // forward declare the expected types
     #define MAKE_TYPES(TYPE, ACT) template void applyFunctor<TYPE, ACT>(TYPE* data, size_t n);
 
     #define MAKE_ALL(TYPE)  MAKE_TYPES(TYPE, ActivationType::LOGISTIC); \

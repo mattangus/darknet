@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <ostream>
+#include <iostream>
 
 namespace darknet
 {
@@ -13,13 +14,14 @@ namespace tensor
         std::vector<int> dims;
     public:
 
-        TensorShape(std::initializer_list<int> dims) : dims(dims)
-        {
+        // TensorShape(std::initializer_list<int> dims) : dims(dims)
+        // {
 
-        }
+        // }
+        TensorShape(const TensorShape& other) = default;
         TensorShape(std::vector<int> dims) : dims(dims)
         {
-
+            
         }
         ~TensorShape()
         {

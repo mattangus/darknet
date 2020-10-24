@@ -58,44 +58,56 @@ namespace layer
          */
         void activateOnOutput()
         {
+            // this->output->template apply<actType>();
+            // this->output->apply<actType>();
             switch(actType){
                 case LINEAR:
-                    this->output->apply(linear);
+                    this->output->template apply<LINEAR>();
+                    break;
                 case LOGISTIC:
-                    this->output->apply(logistic);
+                    this->output->template apply<LOGISTIC>();
+                    break;
                 case LOGGY:
-                    this->output->apply(loggy);
+                    this->output->template apply<LOGGY>();
+                    break;
                 case RELU:
-                    this->output->apply(relu);
+                    this->output->template apply<RELU>();
+                    break;
                 case ELU:
-                    this->output->apply(elu);
+                    this->output->template apply<ELU>();
+                    break;
                 case SELU:
-                    this->output->apply(selu);
+                    this->output->template apply<SELU>();
+                    break;
                 case GELU:
-                    this->output->apply(gelu);
+                    this->output->template apply<GELU>();
+                    break;
                 case RELIE:
-                    this->output->apply(relie);
+                    this->output->template apply<RELIE>();
+                    break;
                 case RAMP:
-                    this->output->apply(ramp);
+                    this->output->template apply<RAMP>();
+                    break;
                 case REVLEAKY:
                 case LEAKY:
-                    this->output->apply(leaky);
+                    this->output->template apply<LEAKY>();
+                    break;
                 case TANH:
-                    this->output->apply(tanh);
+                    this->output->template apply<TANH>();
+                    break;
                 case PLSE:
-                    this->output->apply(plse);
+                    this->output->template apply<PLSE>();
+                    break;
                 case STAIR:
-                    this->output->apply(stair);
+                    this->output->template apply<STAIR>();
+                    break;
                 case HARDTAN:
-                    this->output->apply(hardtan);
+                    this->output->template apply<HARDTAN>();
+                    break;
                 case LHTAN:
-                    this->output->apply(lhtan);
+                    this->output->template apply<LHTAN>();
+                    break;
             }
-        }
-
-        void init() override
-        {
-            output.reset(new tensor::Tensor<float, D>(inputLayer->shape));
         }
 
         ActivationType actType;
@@ -106,13 +118,13 @@ namespace layer
          * 
          * @param activationType Type of Activation
          */
-        Activation(std::shared_ptr<Layer> inputLayer, ActivationType actType)
-            : actType(actType), Layer(inputLayer, LayerType::ACTIVE)
+        Activation(std::shared_ptr<Layer<D>> inputLayer, ActivationType actType)
+            : actType(actType), Layer<D>(inputLayer, LayerType::ACTIVE)
         {
             
         }
         
-        Activation(std::shared_ptr<Layer> input, std::string& actType)
+        Activation(std::shared_ptr<Layer<D>> input, std::string& actType)
             : Activation(input, fromString(actType))
         {
 
@@ -120,7 +132,8 @@ namespace layer
 
         void forward(std::shared_ptr<network::NetworkState>& netState) override
         {
-            inputLayer->output->copyTo(*output);
+            // TODO: change copy to 2 input fuction
+            this->inputLayer->output->copyTo(*(this->output));
             activateOnOutput();
         }
 
@@ -132,6 +145,17 @@ namespace layer
         {
 
         }
+
+        void resize() override
+        {
+
+        }
+
+        void init() override
+        {
+            this->output.reset(new tensor::Tensor<float, D>(this->inputLayer->output->shape));
+        }
+
 
     };
 
