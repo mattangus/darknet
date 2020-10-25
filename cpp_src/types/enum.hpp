@@ -1,7 +1,9 @@
 #pragma once
 
 #include <ostream>
-#include <cuda_fp16.h>
+#if CUDA
+    #include <cuda_fp16.h>
+#endif
 
 namespace darknet
 {
