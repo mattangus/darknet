@@ -104,6 +104,7 @@ TEST(DarkentTensor, CPUActivation)
 
     auto inpl = std::static_pointer_cast<layer::Layer<DeviceType::CPU>>(inp);
     auto act = std::make_shared<layer::Activation<DeviceType::CPU>>(inpl, ActivationType::RELU);
+    act->init();
     std::shared_ptr<network::NetworkState> s = nullptr;
     act->forward(s);
 }
