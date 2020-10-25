@@ -42,15 +42,25 @@ namespace darknet
     {
         switch (obj)
         {
-        case DeviceType::GPUDEVICE:
+        case DeviceType::GPU:
             out << "GPU";
             break;
-        case DeviceType::CPUDEVICE:
+        case DeviceType::CPU:
             out << "CPU";
             break;
         }
 
         return out;
     }
+
+    template<> DataType getType<half>() { return DataType::DT_FLOAT16; }
+    template<> DataType getType<float>() { return DataType::DT_FLOAT32; }
+    template<> DataType getType<double>() { return DataType::DT_FLOAT64; }
+    template<> DataType getType<int8_t>() { return DataType::DT_INT8; }
+    template<> DataType getType<int32_t>() { return DataType::DT_INT32; }
+    template<> DataType getType<int64_t>() { return DataType::DT_INT64; }
+    template<> DataType getType<uint8_t>() { return DataType::DT_UINT8; }
+    template<> DataType getType<uint32_t>() { return DataType::DT_UINT32; }
+    template<> DataType getType<uint64_t>() { return DataType::DT_UINT64; }
 
 } // namespace darknet

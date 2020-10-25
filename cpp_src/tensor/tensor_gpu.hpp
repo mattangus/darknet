@@ -13,7 +13,7 @@ namespace tensor
 {
 
     template<typename T>
-    class Tensor<T, DeviceType::GPUDEVICE> : public TensorBase<T, DeviceType::GPUDEVICE>
+    class Tensor<T, DeviceType::GPU> : public TensorBase<T, DeviceType::GPU>
     {
     private:
         cuda::device_t _device;
@@ -24,13 +24,13 @@ namespace tensor
             this->data = nullptr;
         }
 
-        Tensor(TensorShape& shape) : TensorBase<T, DeviceType::GPUDEVICE>(shape), _device(cuda::device::current::get())
+        Tensor(TensorShape& shape) : TensorBase<T, DeviceType::GPU>(shape), _device(cuda::device::current::get())
         {
             
             this->data = static_cast<T*>(_device.memory().allocate(shape.numElem() * sizeof(T)));
         }
 
-        Tensor(const Tensor& other) : TensorBase<T, DeviceType::GPUDEVICE>(other.shape), _device(other._device)
+        Tensor(const Tensor& other) : TensorBase<T, DeviceType::GPU>(other.shape), _device(other._device)
         {
             this->data = other.data;
         }

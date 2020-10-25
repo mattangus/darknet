@@ -1,12 +1,13 @@
 #pragma once
 
 #include <ostream>
+#include <cuda_fp16.h>
 
 namespace darknet
 {
     enum DeviceType {
-        CPUDEVICE,
-        GPUDEVICE
+        CPU,
+        GPU
     };
 
     enum DataType {
@@ -20,6 +21,9 @@ namespace darknet
         DT_UINT32,
         DT_UINT64
     };
+
+    template<typename T>
+    DataType getType();
     
     enum ActivationType {
         LOGISTIC,

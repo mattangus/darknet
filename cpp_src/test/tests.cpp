@@ -13,111 +13,114 @@
 //     auto layer_1 = darknet::layer::Activation(nullptr, act);
 // }
 
+using namespace darknet;
+using namespace darknet::tensor;
+
 TEST(DarkentTensor, TestCreateCPUTensor)
 {
-    darknet::tensor::TensorShape shape({9, 3});
+    TensorShape shape({9, 3});
     
-    darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE> matrix1();
-    darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE> matrix2(shape);
+    Tensor<float, DeviceType::CPU> matrix1();
+    Tensor<float, DeviceType::CPU> matrix2(shape);
 }
 
 TEST(DarkentTensor, TestCreateGPUTensor)
 {
-    darknet::tensor::TensorShape shape({10, 10});
+    TensorShape shape({10, 10});
     
-    darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE> matrix1();
-    darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE> matrix2(shape);
+    Tensor<float, DeviceType::GPU> matrix1();
+    Tensor<float, DeviceType::GPU> matrix2(shape);
 }
 
 TEST(DarkentTensor, TestCopyCPU)
 {
-    darknet::tensor::TensorShape shape({9, 3});
-    darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE> matrix1(shape);
-    darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE> matrix2(shape);
-    darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE> matrix3 = matrix1.copy();
+    TensorShape shape({9, 3});
+    Tensor<float, DeviceType::CPU> matrix1(shape);
+    Tensor<float, DeviceType::CPU> matrix2(shape);
+    Tensor<float, DeviceType::CPU> matrix3 = matrix1.copy();
     matrix1.copyTo(matrix2);
 }
 
 TEST(DarkentTensor, TestCopyGPU)
 {
-    darknet::tensor::TensorShape shape({4, 3});
-    darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE> matrix1(shape);
-    darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE> matrix2(shape);
-    darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE> matrix3 = matrix1.copy();
+    TensorShape shape({4, 3});
+    Tensor<float, DeviceType::GPU> matrix1(shape);
+    Tensor<float, DeviceType::GPU> matrix2(shape);
+    Tensor<float, DeviceType::GPU> matrix3 = matrix1.copy();
     matrix1.copyTo(matrix2);
 }
 
 
 TEST(DarkentTensor, ApplyCPU)
 {
-    darknet::tensor::TensorShape shape({9, 15});
-    darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE> matrix1(shape);
-    matrix1.apply<darknet::ActivationType::RELU>();
+    TensorShape shape({9, 15});
+    Tensor<float, DeviceType::CPU> matrix1(shape);
+    matrix1.apply<ActivationType::RELU>();
 }
 
 TEST(DarkentTensor, ApplyGPU)
 {
-    darknet::tensor::TensorShape shape({9, 20});
-    darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE> matrix12(shape);
-    matrix12.apply<darknet::ActivationType::RELU>();
+    TensorShape shape({9, 20});
+    Tensor<float, DeviceType::GPU> matrix12(shape);
+    matrix12.apply<ActivationType::RELU>();
 }
 
 TEST(DarkentTensor, CPUInput)
 {
-    darknet::tensor::TensorShape shape({9, 15});
-    std::shared_ptr<darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE>> matrix1(new darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE>(shape));
+    TensorShape shape({9, 15});
+    std::shared_ptr<Tensor<float, DeviceType::CPU>> matrix1(new Tensor<float, DeviceType::CPU>(shape));
     std::vector<float> inputs(shape.numElem());
     for(int i = 0; i < shape.numElem(); i++)
         inputs[i] = i / 10;
     matrix1->fromArray(inputs);
 
-    darknet::layer::Input<darknet::DeviceType::CPUDEVICE> inp(matrix1);
+    layer::Input<DeviceType::CPU> inp(matrix1);
     inp.init();
 }
 
 TEST(DarkentTensor, GPUInput)
 {   
-    darknet::tensor::TensorShape shape({9, 15});
-    std::shared_ptr<darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE>> matrix1(new darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE>(shape));
+    TensorShape shape({9, 15});
+    std::shared_ptr<Tensor<float, DeviceType::GPU>> matrix1(new Tensor<float, DeviceType::GPU>(shape));
     std::vector<float> inputs(shape.numElem());
     for(int i = 0; i < shape.numElem(); i++)
         inputs[i] = i / 10;
     matrix1->fromArray(inputs);
 
-    darknet::layer::Input<darknet::DeviceType::GPUDEVICE> inp(matrix1);
+    layer::Input<DeviceType::GPU> inp(matrix1);
 }
 
 TEST(DarkentTensor, CPUActivation)
 {
-    darknet::tensor::TensorShape shape({9, 15});
-    auto matrix1 = std::make_shared<darknet::tensor::Tensor<float, darknet::DeviceType::CPUDEVICE>> (shape);
+    TensorShape shape({9, 15});
+    auto matrix1 = std::make_shared<Tensor<float, DeviceType::CPU>> (shape);
     std::vector<float> inputs(shape.numElem());
     for(int i = 0; i < shape.numElem(); i++)
         inputs[i] = i / 10;
     matrix1->fromArray(inputs);
 
-    auto inp = std::make_shared<darknet::layer::Input<darknet::DeviceType::CPUDEVICE>>(matrix1);
+    auto inp = std::make_shared<layer::Input<DeviceType::CPU>>(matrix1);
     inp->init();
 
-    auto inpl = std::static_pointer_cast<darknet::layer::Layer<darknet::DeviceType::CPUDEVICE>>(inp);
-    auto act = std::make_shared<darknet::layer::Activation<darknet::DeviceType::CPUDEVICE>>(inpl, darknet::ActivationType::RELU);
-    std::shared_ptr<darknet::network::NetworkState> s = nullptr;
+    auto inpl = std::static_pointer_cast<layer::Layer<DeviceType::CPU>>(inp);
+    auto act = std::make_shared<layer::Activation<DeviceType::CPU>>(inpl, ActivationType::RELU);
+    std::shared_ptr<network::NetworkState> s = nullptr;
     act->forward(s);
 }
 
 // TEST(DarkentTensor, GPUActivation)
 // {   
 //     darknet::tensor::TensorShape shape({9, 15});
-//     auto matrix1 = std::make_shared<darknet::tensor::Tensor<float, darknet::DeviceType::GPUDEVICE>> (shape);
+//     auto matrix1 = std::make_shared<darknet::tensor::Tensor<float, darknet::DeviceType::GPU>> (shape);
 //     std::vector<float> inputs(shape.numElem());
 //     for(int i = 0; i < shape.numElem(); i++)
 //         inputs[i] = i / 10;
 //     matrix1->fromArray(inputs);
 
-//     auto inp = std::make_shared<darknet::layer::Input<darknet::DeviceType::GPUDEVICE>>(matrix1);
+//     auto inp = std::make_shared<darknet::layer::Input<darknet::DeviceType::GPU>>(matrix1);
 //     inp->init();
-//     auto inpl = std::static_pointer_cast<darknet::layer::Layer<darknet::DeviceType::GPUDEVICE>>(inp);
-//     auto act = std::make_shared<darknet::layer::Activation<darknet::DeviceType::GPUDEVICE>>(inpl);
+//     auto inpl = std::static_pointer_cast<darknet::layer::Layer<darknet::DeviceType::GPU>>(inp);
+//     auto act = std::make_shared<darknet::layer::Activation<darknet::DeviceType::GPU>>(inpl);
 //     std::shared_ptr<darknet::network::NetworkState> s = nullptr;
 //     act->forward(s);
 // }

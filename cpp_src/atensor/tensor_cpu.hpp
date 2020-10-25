@@ -4,8 +4,12 @@
 #include <cstring>
 #include <iostream>
 
+#if CUDA
+    #include <cuda/api_wrappers.hpp>
+#endif
+
 #include "layer/activation_fn.hpp"
-#include "tensor/tensor.hpp"
+#include "atensor/tensor_base.hpp"
 
 namespace darknet
 {
@@ -15,25 +19,24 @@ namespace tensor
     /**
      * @brief CPU tensor
      * 
-     * @tparam T 
      */
     template<typename T>
-    class Tensor<T, DeviceType::CPU> : public TensorBase<T, DeviceType::CPU>
+    class CpuTensor: public TensorBase<T>
     {
     private:
         
     public:
-        Tensor() : TensorBase<T, DeviceType::CPU>(TensorShape({}))
+        CpuTensor() : TensorBase<T>(TensorShape({}), DeviceType::CPU)
         {
 
         }
 
-        Tensor(TensorShape& shape) : TensorBase<T, DeviceType::CPU>(shape)
+        CpuTensor(TensorShape& shape) : TensorBase<T>(shape, DeviceType::CPU)
         {
-            this->data = static_cast<T*>(std::malloc(shape.numElem() * sizeof(T)));
+            this->data = (T*)std::malloc(this->numBytes);
         }
 
-        ~Tensor()
+        ~CpuTensor()
         {
             if(this->data)
             {
@@ -49,9 +52,8 @@ namespace tensor
         template<ActivationType A>
         void apply()
         {
-            size_t n = this->shape.numElem();
             #pragma omp parallel for
-            for (size_t i = 0; i < n; ++i) {
+            for (size_t i = 0; i < this->data; ++i) {
                 switch(A){
                     case LINEAR:
                         this->data[i] = layer::linear(this->data[i]);
@@ -103,24 +105,31 @@ namespace tensor
             }
         }
 
-        Tensor copy()
+        std::shared_ptr<TensorBase<T>> copy() override
         {
-            Tensor ret(this->shape);
-            std::memcpy(ret.data, this->data, this->shape.numElem() * sizeof(T));
-            return ret;
+            auto ret = std::make_shared<CpuTensor>(this->shape);
+            std::memcpy(ret->data, this->data, this->numBytes);
+            return std::static_pointer_cast<TensorBase<T>>(ret);
         }
 
-        void copyTo(Tensor& other)
+        void copyTo(std::shared_ptr<TensorBase<T>>& other) override
         {
-            assert(other.shape == this->shape);
-            std::memcpy(other.data, this->data, this->shape.numElem() * sizeof(T));
+            assert(other->getShape() == this->shape);
+            #if CUDA
+                // let the driver figure out if the memory addresses are cpu or gpu bound.
+                cuda::memory::copy(other->ptr(), this->data, this->numBytes);
+            #else
+                //only have cpu tensors
+                // std::shared_ptr<CpuTensor> temp = std::static_pointer_cast<CpuTensor>(other);
+                std::memcpy(other->ptr(), this->data, this->numBytes);
+            #endif
         }
 
         void fromArray(std::vector<T>& vec)
         {
-            size_t n = this->shape.numElem();
-            assert(vec.size() == n);
-            std::memcpy(this->data, &vec[0], n * sizeof(T));
+            assert(vec.size() == this->numElem);
+            assert(getType<T>() == this->dtype);
+            std::memcpy(this->data, &vec[0], this->numBytes);
         }
 
     };
