@@ -6,6 +6,7 @@
 
 #include "types/enum.hpp"
 #include "tensor/tensor_shape.hpp"
+#include "utils/memory.hpp"
 
 namespace darknet
 {
@@ -15,27 +16,17 @@ namespace tensor
     /**
      * @brief Base class for multi dimensional arrays. This has data and dimension info.
      * 
-     * @tparam T Type of data
-     * @tparam device device to store data and execute operations on
      */
-    template<typename T, DeviceType D>
+    template<typename T>
     class TensorBase
     {
     protected:
         DataType dtype;
+        DeviceType device;
         T* data = nullptr;
+        size_t numBytes;
+        size_t numElem;
 
-        /**
-         * @brief Hide the constructor so you can't create just the base class. Use Tensor instead
-         * 
-         * @param shape shape to create
-         */
-        TensorBase(const TensorShape& shape) : shape(shape)
-        {
-
-        }
-
-    public:
         /**
          * @brief Shape of this tensor
          * 
@@ -43,22 +34,39 @@ namespace tensor
         TensorShape shape;
 
         /**
+         * @brief Hide the constructor so you can't create just the base class. Use Tensor instead
+         * 
+         * @param shape shape to create
+         */
+        TensorBase(const TensorShape& shape, DeviceType device) : shape(shape), device(device)
+        {
+            numElem = this->shape.numElem();
+            numBytes = sizeof(T) * numElem;
+        }
+
+    public:
+
+        DataType getType() { return dtype; }
+
+        TensorShape getShape() { return shape; }
+
+        /**
          * @brief Get the Device of this tensor
          * 
          * @return DeviceType the device
          */
-        DeviceType getDevice() {return D;}
+        DeviceType getDevice() {return device;}
 
         /**
          * @brief Get the pointer to the data. Caution: this can be pointing to cpu or gpu memory.
          * 
          * @return T* 
          */
-        T* ptr() {return data;}
+        void* ptr() {return data;}
 
-        // virtual TensorBase<T, D> copy() = 0;
+        virtual std::shared_ptr<TensorBase<T>> copy() = 0;
 
-        // virtual void copyTo(TensorBase& other) = 0;
+        virtual void copyTo(std::shared_ptr<TensorBase<T>>& other) = 0;
 
         // template<typename F>
         // virtual void apply(F functor, Tensor<T, D>& t1) = 0;

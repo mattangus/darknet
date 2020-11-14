@@ -4,8 +4,12 @@
 #include <cstring>
 #include <iostream>
 
+#if CUDA
+    #include <cuda/api_wrappers.hpp>
+#endif
+
 #include "layer/activation_fn.hpp"
-#include "tensor/tensor.hpp"
+#include "tensor/tensor_base.hpp"
 
 namespace darknet
 {
@@ -15,31 +19,16 @@ namespace tensor
     /**
      * @brief CPU tensor
      * 
-     * @tparam T 
      */
     template<typename T>
-    class Tensor<T, DeviceType::CPU> : public TensorBase<T, DeviceType::CPU>
+    class CpuTensor: public TensorBase<T>
     {
     private:
         
     public:
-        Tensor() : TensorBase<T, DeviceType::CPU>(TensorShape({}))
-        {
-
-        }
-
-        Tensor(TensorShape& shape) : TensorBase<T, DeviceType::CPU>(shape)
-        {
-            this->data = static_cast<T*>(std::malloc(shape.numElem() * sizeof(T)));
-        }
-
-        ~Tensor()
-        {
-            if(this->data)
-            {
-                std::free(this->data);
-            }
-        }
+        CpuTensor();
+        CpuTensor(TensorShape& shape);
+        ~CpuTensor();
 
         /**
          * @brief Apply an activation function in place to this tensor.
@@ -49,9 +38,8 @@ namespace tensor
         template<ActivationType A>
         void apply()
         {
-            size_t n = this->shape.numElem();
             #pragma omp parallel for
-            for (size_t i = 0; i < n; ++i) {
+            for (size_t i = 0; i < this->data; ++i) {
                 switch(A){
                     case LINEAR:
                         this->data[i] = layer::linear(this->data[i]);
@@ -103,25 +91,9 @@ namespace tensor
             }
         }
 
-        Tensor copy()
-        {
-            Tensor ret(this->shape);
-            std::memcpy(ret.data, this->data, this->shape.numElem() * sizeof(T));
-            return ret;
-        }
-
-        void copyTo(Tensor& other)
-        {
-            assert(other.shape == this->shape);
-            std::memcpy(other.data, this->data, this->shape.numElem() * sizeof(T));
-        }
-
-        void fromArray(std::vector<T>& vec)
-        {
-            size_t n = this->shape.numElem();
-            assert(vec.size() == n);
-            std::memcpy(this->data, &vec[0], n * sizeof(T));
-        }
+        std::shared_ptr<TensorBase<T>> copy() override;
+        void copyTo(std::shared_ptr<TensorBase<T>>& other) override;
+        void fromArray(std::vector<T>& vec);
 
     };
     

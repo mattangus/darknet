@@ -7,7 +7,7 @@ namespace darknet
 {
 namespace utils
 {
-    size_t numBytes(DataType t)
+    inline size_t numBytes(DataType t)
     {
         switch (t)
         {

@@ -1,5 +1,5 @@
 
-#include "atensor/tensor_cpu.hpp"
+#include "tensor/tensor_cpu.hpp"
 
 #include <gtest/gtest.h>
 // TEST(DarkNetTest, CreatingObjects) {
