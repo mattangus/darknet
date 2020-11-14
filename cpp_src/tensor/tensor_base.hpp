@@ -3,10 +3,12 @@
 #include <memory>
 #include <ostream>
 #include <cassert>
+#include <vector>
 
 #include "types/enum.hpp"
 #include "tensor/tensor_shape.hpp"
 #include "utils/memory.hpp"
+#include "types/enum.hpp"
 
 namespace darknet
 {
@@ -42,6 +44,7 @@ namespace tensor
         {
             numElem = this->shape.numElem();
             numBytes = sizeof(T) * numElem;
+            this->dtype = darknet::getType<T>();
         }
 
     public:
@@ -62,12 +65,24 @@ namespace tensor
          * 
          * @return T* 
          */
-        void* ptr() {return data;}
+        T* ptr() {return data;}
 
         virtual std::shared_ptr<TensorBase<T>> copy() = 0;
 
         virtual void copyTo(std::shared_ptr<TensorBase<T>>& other) = 0;
+        virtual void copyTo(std::vector<T>& other) = 0;
 
+        virtual void operator+=(T other) = 0;
+        virtual void operator+=(const std::shared_ptr<TensorBase<T>>& other) = 0;
+
+        virtual void operator-=(T other) = 0;
+        virtual void operator-=(std::shared_ptr<TensorBase<T>>& other) = 0;
+
+        virtual void operator*=(T other) = 0;
+        virtual void operator*=(std::shared_ptr<TensorBase<T>>& other) = 0;
+
+        virtual void operator/=(T other) = 0;
+        virtual void operator/=(std::shared_ptr<TensorBase<T>>& other) = 0;
         // template<typename F>
         // virtual void apply(F functor, Tensor<T, D>& t1) = 0;
 

@@ -39,7 +39,7 @@ namespace tensor
         void apply()
         {
             #pragma omp parallel for
-            for (size_t i = 0; i < this->data; ++i) {
+            for (size_t i = 0; i < this->numElem; ++i) {
                 switch(A){
                     case LINEAR:
                         this->data[i] = layer::linear(this->data[i]);
@@ -93,7 +93,20 @@ namespace tensor
 
         std::shared_ptr<TensorBase<T>> copy() override;
         void copyTo(std::shared_ptr<TensorBase<T>>& other) override;
+        void copyTo(std::vector<T>& other) override;
         void fromArray(std::vector<T>& vec);
+
+        void operator+=(T other) override;
+        void operator+=(const std::shared_ptr<TensorBase<T>>& other) override;
+
+        void operator-=(T other) override;
+        void operator-=(std::shared_ptr<TensorBase<T>>& other) override;
+
+        void operator*=(T other) override;
+        void operator*=(std::shared_ptr<TensorBase<T>>& other) override;
+
+        void operator/=(T other) override;
+        void operator/=(std::shared_ptr<TensorBase<T>>& other) override;
 
     };
     

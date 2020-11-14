@@ -1,25 +1,28 @@
 
-#include "tensor/tensor_cpu.hpp"
 
 #include <gtest/gtest.h>
-// TEST(DarkNetTest, CreatingObjects) {
-//     std::string act = "logistic";
-//     auto layer_1 = darknet::layer::Activation(nullptr, act);
-// }
 
-using namespace darknet::tensor;
+// Seems a bit hacky but gets the job done.
 
-TEST(DarkentTensor, TestCPUCopy)
-{
-    TensorShape shape({9, 3});
-    
-    CpuTensor<float> matrix1();
-    auto matrix2 = std::make_shared<CpuTensor<float>>(shape);
-    auto matrix3 = std::make_shared<CpuTensor<float>>(shape);
-    auto temp = std::static_pointer_cast<TensorBase<float>>(matrix3);
+#define ATENSOR CpuTensor
+#define BTENSOR GpuTensor
+#define TEST_NAME TestCPUTensor
 
-    matrix2->copyTo(temp);
-}
+#include "test/tensor.hpp"
+
+#undef ATENSOR
+#undef BTENSOR
+#undef TEST_NAME
+
+#define ATENSOR GpuTensor
+#define BTENSOR CpuTensor
+#define TEST_NAME TestGPUTensor
+
+#include "test/tensor.hpp"
+
+#undef ATENSOR
+#undef BTENSOR
+#undef TEST_NAME
 
 int main(int argc, char **argv) {
     // register_handlers();
