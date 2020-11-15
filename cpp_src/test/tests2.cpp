@@ -24,6 +24,22 @@
 #undef BTENSOR
 #undef TEST_NAME
 
+#define ATENSOR GpuTensor
+#define TEST_NAME TestGpuActivaton
+
+#include "test/activation.hpp"
+
+#undef ATENSOR
+#undef TEST_NAME
+
+#define ATENSOR CpuTensor
+#define TEST_NAME TestCpuActivaton
+
+#include "test/activation.hpp"
+
+#undef ATENSOR
+#undef TEST_NAME
+
 int main(int argc, char **argv) {
     // register_handlers();
     testing::InitGoogleTest(&argc, argv);

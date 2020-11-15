@@ -7,13 +7,14 @@
 #include "layer/layer.hpp"
 #include "types/enum.hpp"
 #include "layer/activation_fn.hpp"
+#include "tensor/helper.hpp"
+#include "errors.hpp"
 
 namespace darknet
 {
 namespace layer
 {
-    template <DeviceType D>
-    class Activation : Layer<D>
+    class Activation : Layer
     {
     protected:
         /******************************************************
@@ -62,51 +63,57 @@ namespace layer
             // this->output->apply<actType>();
             switch(actType){
                 case LINEAR:
-                    this->output->template apply<LINEAR>();
+                    tensor::applyElementwise<float, linear<float>>(this->output);
                     break;
                 case LOGISTIC:
-                    this->output->template apply<LOGISTIC>();
+                    tensor::applyElementwise<float, logistic<float>>(this->output);
                     break;
                 case LOGGY:
-                    this->output->template apply<LOGGY>();
+                    tensor::applyElementwise<float, loggy<float>>(this->output);
                     break;
                 case RELU:
-                    this->output->template apply<RELU>();
+                    tensor::applyElementwise<float, relu<float>>(this->output);
+                    break;
+                case RELU6:
+                    tensor::applyElementwise<float, relu6<float>>(this->output);
                     break;
                 case ELU:
-                    this->output->template apply<ELU>();
+                    tensor::applyElementwise<float, elu<float>>(this->output);
                     break;
                 case SELU:
-                    this->output->template apply<SELU>();
+                    tensor::applyElementwise<float, selu<float>>(this->output);
                     break;
                 case GELU:
-                    this->output->template apply<GELU>();
+                    tensor::applyElementwise<float, gelu<float>>(this->output);
                     break;
                 case RELIE:
-                    this->output->template apply<RELIE>();
+                    tensor::applyElementwise<float, relie<float>>(this->output);
                     break;
                 case RAMP:
-                    this->output->template apply<RAMP>();
+                    tensor::applyElementwise<float, ramp<float>>(this->output);
                     break;
                 case REVLEAKY:
                 case LEAKY:
-                    this->output->template apply<LEAKY>();
+                    tensor::applyElementwise<float, leaky<float>>(this->output);
                     break;
                 case TANH:
-                    this->output->template apply<TANH>();
+                    tensor::applyElementwise<float, tanh<float>>(this->output);
                     break;
                 case PLSE:
-                    this->output->template apply<PLSE>();
+                    tensor::applyElementwise<float, plse<float>>(this->output);
                     break;
                 case STAIR:
-                    this->output->template apply<STAIR>();
+                    tensor::applyElementwise<float, stair<float>>(this->output);
                     break;
                 case HARDTAN:
-                    this->output->template apply<HARDTAN>();
+                    tensor::applyElementwise<float, hardtan<float>>(this->output);
                     break;
                 case LHTAN:
-                    this->output->template apply<LHTAN>();
+                    tensor::applyElementwise<float, lhtan<float>>(this->output);
                     break;
+                default:
+                    throw NotImplemented("activation " + std::to_string(actType) + " not implemented");
+                break;
             }
         }
 
@@ -118,26 +125,26 @@ namespace layer
          * 
          * @param activationType Type of Activation
          */
-        Activation(std::shared_ptr<Layer<D>> inputLayer, ActivationType actType)
-            : actType(actType), Layer<D>(inputLayer, LayerType::ACTIVE)
+        Activation(std::shared_ptr<Layer> inputLayer, ActivationType actType)
+            : actType(actType), Layer(inputLayer, LayerType::ACTIVE)
         {
-            
+            init();
         }
         
-        Activation(std::shared_ptr<Layer<D>> input, std::string& actType)
+        Activation(std::shared_ptr<Layer> input, std::string& actType)
             : Activation(input, fromString(actType))
         {
 
         }
 
-        void forward(std::shared_ptr<network::NetworkState>& netState) override
+        void forward() override
         {
-            // TODO: change copy to 2 input fuction
-            this->inputLayer->output->copyTo(*(this->output));
+            // TODO: change from copy to a function that assigns
+            this->inputLayer->output->copyTo(this->output);
             activateOnOutput();
         }
 
-        void backward(std::shared_ptr<network::NetworkState>& netState) override
+        void backward() override
         {
 
         }
@@ -151,13 +158,10 @@ namespace layer
 
         }
 
-        void init() override
+        void init()
         {
-            this->output.reset(new tensor::Tensor<float, D>(this->inputLayer->output->shape));
+            this->output = inputLayer->output->mirror();
         }
-
-
     };
-
 } // namespace layer
 } // namespace darknet

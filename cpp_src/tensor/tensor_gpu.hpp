@@ -17,7 +17,7 @@ namespace darknet
 namespace tensor
 {
     /**
-     * @brief CPU tensor
+     * @brief GPU tensor
      * 
      */
     template<typename T>
@@ -46,6 +46,7 @@ namespace tensor
         ~GpuTensor();
 
         std::shared_ptr<TensorBase<T>> copy() override;
+        std::shared_ptr<TensorBase<T>> mirror() override;
         void copyTo(std::shared_ptr<TensorBase<T>>& other) override;
         void copyTo(std::vector<T>& other) override;
         void fromArray(std::vector<T>& vec);
@@ -63,6 +64,12 @@ namespace tensor
         void operator/=(const TensorBase<T>& other) override;
 
     };
+
+    template<typename T, typename F>
+    void applyElementwise(std::shared_ptr<GpuTensor<T>>& input)
+    {
+        auto functor = F();
+    }
     
 } // namespace tensor
 } // namespace darknet

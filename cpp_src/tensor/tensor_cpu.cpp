@@ -40,6 +40,13 @@ namespace tensor
     }
 
     template<typename T>
+    std::shared_ptr<TensorBase<T>> CpuTensor<T>::mirror()
+    {
+        auto ret = std::make_shared<CpuTensor>(this->shape);
+        return std::static_pointer_cast<TensorBase<T>>(ret);
+    }
+
+    template<typename T>
     void CpuTensor<T>::copyTo(std::shared_ptr<TensorBase<T>>& other)
     {
         assert(other->getShape() == this->shape);

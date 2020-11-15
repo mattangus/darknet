@@ -1,5 +1,6 @@
 #pragma once
 #include <stdexcept>
+#include <string>
 
 namespace darknet
 {
@@ -7,6 +8,7 @@ namespace darknet
     {
     public:
         NotImplemented() : std::logic_error("Function not yet implemented") { };
+        NotImplemented(std::string str) : std::logic_error(str) { };
     };
     
 } // namespace darknet

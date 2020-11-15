@@ -11,12 +11,11 @@ namespace darknet
 {
 namespace layer
 {
-    template <DeviceType D>
-    class Input : public Layer<D>
+    class Input : public Layer
     {
     protected:
 
-        std::shared_ptr<tensor::Tensor<float, D>> inputTensor;
+        std::shared_ptr<tensor::TensorBase<float>> inputTensor;
 
     public:
         /**
@@ -24,18 +23,18 @@ namespace layer
          * 
          * @param activationType Type of Activation
          */
-        Input(std::shared_ptr<tensor::Tensor<float, D>>& inputTensor)
-            : inputTensor(inputTensor), Layer<D>(nullptr, LayerType::INPUT)
+        Input(std::shared_ptr<tensor::TensorBase<float>>& inputTensor)
+            : inputTensor(inputTensor), Layer(nullptr, LayerType::INPUT)
         {
-            
+            init();
         }
 
-        void forward(std::shared_ptr<network::NetworkState>& netState) override
+        void forward() override
         {
             // Do nothing.
         }
 
-        void backward(std::shared_ptr<network::NetworkState>& netState) override
+        void backward() override
         {
             // do nothing
         }
@@ -51,7 +50,7 @@ namespace layer
 
         }
 
-        void init() override
+        void init()
         {
             this->output = inputTensor;
         }

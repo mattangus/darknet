@@ -5,7 +5,7 @@
 
 #include "types/enum.hpp"
 #include "network/network_state.hpp"
-#include "tensor/tensor.hpp"
+#include "tensor/tensor_base.hpp"
 
 namespace darknet
 {
@@ -16,7 +16,6 @@ namespace layer
      * @brief Basic layer class to be inherited.
      * TODO: need logic for shapes and input size verification.
      */
-    template <DeviceType D>
     class Layer
     {
     protected:
@@ -42,13 +41,13 @@ namespace layer
          * 
          * Analogous to layer.froward[_gpu] function pointer
          */
-        virtual void forward(std::shared_ptr<network::NetworkState>& netState) = 0;
+        virtual void forward() = 0;
 
         /**
          * @brief Compute the backwards pass (gradients) of this layer
          * Analogous to layer.backward[_gpu] function pointer
          */
-        virtual void backward(std::shared_ptr<network::NetworkState>& netState) = 0;
+        virtual void backward() = 0;
         /**
          * @brief 
          * Analogous to layer.update[_gpu] function pointer
@@ -64,13 +63,13 @@ namespace layer
         const LayerType type;
         
         // The output tensor for this layer.
-        std::shared_ptr<tensor::Tensor<float, D>> output;
+        std::shared_ptr<tensor::TensorBase<float>> output;
 
         /**
          * @brief Initialize any memory (GPU or CPU) that is required.
          * Analogous to parts of make_*_layer
          */
-        virtual void init() = 0;
+        // virtual void init() = 0;
     };
 
     

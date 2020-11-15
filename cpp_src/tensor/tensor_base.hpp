@@ -67,9 +67,30 @@ namespace tensor
          */
         T* ptr() const {return data;}
 
+        /**
+         * @brief Copy this tensor to a new tensor
+         * 
+         * @return std::shared_ptr<TensorBase<T>> 
+         */
         virtual std::shared_ptr<TensorBase<T>> copy() = 0;
+        /**
+         * @brief Create a new tensor on the same device with the same shape.
+         * 
+         * @return std::shared_ptr<TensorBase<T>> 
+         */
+        virtual std::shared_ptr<TensorBase<T>> mirror() = 0;
 
+        /**
+         * @brief Copy to another tensor, either 
+         * 
+         * @param other 
+         */
         virtual void copyTo(std::shared_ptr<TensorBase<T>>& other) = 0;
+        /**
+         * @brief Copy to cpu, storing in a vector.
+         * 
+         * @param other output vector
+         */
         virtual void copyTo(std::vector<T>& other) = 0;
 
         virtual void operator+=(T other) = 0;
@@ -83,13 +104,12 @@ namespace tensor
 
         virtual void operator/=(T other) = 0;
         virtual void operator/=(const TensorBase<T>& other) = 0;
-        // template<typename F>
-        // virtual void apply(F functor, Tensor<T, D>& t1) = 0;
 
         // template<typename T1, DeviceType device1>
         // friend std::ostream& operator<< (std::ostream& out, const TensorBase<T1, device1>& obj);
     };
-    
+
+
     // template<typename T, DeviceType device>
     // std::ostream& operator<< (std::ostream& out, const TensorBase<T, device>& obj)
     // {

@@ -12,7 +12,9 @@ namespace gpu
     template<typename _Tp>
     struct plus
     {
-      inline _Tp __device__ operator()(_Tp& __x, _Tp& __y) const
+      _GLIBCXX14_CONSTEXPR
+      _Tp
+      __host__ __device__ operator()(_Tp& __x, _Tp& __y) const
       { return __x + __y; }
     };
 
@@ -21,7 +23,7 @@ namespace gpu
     {
       _GLIBCXX14_CONSTEXPR
       _Tp
-      __device__ operator()(const _Tp& __x, const _Tp& __y) const
+      __host__ __device__ operator()(const _Tp& __x, const _Tp& __y) const
       { return __x - __y; }
     };
 
@@ -30,7 +32,7 @@ namespace gpu
     {
       _GLIBCXX14_CONSTEXPR
       _Tp
-      __device__ operator()(const _Tp& __x, const _Tp& __y) const
+      __host__ __device__ operator()(const _Tp& __x, const _Tp& __y) const
       { return __x / __y; }
     };
 
@@ -39,7 +41,7 @@ namespace gpu
     {
       _GLIBCXX14_CONSTEXPR
       _Tp
-      __device__ operator()(const _Tp& __x, const _Tp& __y) const
+      __host__ __device__ operator()(const _Tp& __x, const _Tp& __y) const
       { return __x * __y; }
     };
 

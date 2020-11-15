@@ -36,7 +36,13 @@ message("cuda falgs: " ${CUDA_ARCH_FLAGS})
 # )
 # TARGET_LINK_LIBRARIES(runTests ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread)
 
-CUDA_ADD_EXECUTABLE(runTests2 test/tests2.cpp tensor/tensor_cpu.cpp types/enum.cpp tensor/tensor_gpu.cpp gpu/tensor.cu gpu/dark.cu)
+CUDA_ADD_EXECUTABLE(runTests2
+    test/tests2.cpp
+    tensor/tensor_cpu.cpp
+    types/enum.cpp
+    tensor/tensor_gpu.cpp
+    gpu/tensor.cu
+    gpu/dark.cu)
 
 target_include_directories(runTests2 PUBLIC
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
