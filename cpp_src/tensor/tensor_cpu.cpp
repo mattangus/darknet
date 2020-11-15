@@ -4,6 +4,8 @@
 
 #include <type_traits>
 
+#define SCALAR_LOOP()
+
 namespace darknet
 {
 namespace tensor
@@ -77,67 +79,58 @@ namespace tensor
     template<typename T>
     void CpuTensor<T>::operator+=(T other)
     {
-        #pragma omp parallel for
-        for (size_t i = 0; i < this->numElem; ++i)
-            this->data[i] += other;
+        elementwise<std::plus<T>>(other);
     }
 
     template<typename T>
-    void CpuTensor<T>::operator+=(const std::shared_ptr<TensorBase<T>>& other)
+    void CpuTensor<T>::operator+=(const TensorBase<T>& other)
     {
-        // TODO: broadcasting
-        assert(this->shape == other->getShape());
-        // only support same device operations
-        assert(other->getDevice() == DeviceType::CPU);
-        auto temp = std::static_pointer_cast<CpuTensor<T>>(other);
-        #pragma omp parallel for
-        for (size_t i = 0; i < this->numElem; ++i)
-            this->data[i] += temp->data[i];
+        elementwise<std::plus<T>>(other);
     }
 
     template<typename T>
     void CpuTensor<T>::operator-=(T other)
     {
-
+        elementwise<std::minus<T>>(other);
     }
     template<typename T>
-    void CpuTensor<T>::operator-=(std::shared_ptr<TensorBase<T>>& other)
+    void CpuTensor<T>::operator-=(const TensorBase<T>& other)
     {
-
+        elementwise<std::minus<T>>(other);
     }
 
     template<typename T>
     void CpuTensor<T>::operator*=(T other)
     {
-
+        elementwise<std::multiplies<T>>(other);
     }
     template<typename T>
-    void CpuTensor<T>::operator*=(std::shared_ptr<TensorBase<T>>& other)
+    void CpuTensor<T>::operator*=(const TensorBase<T>& other)
     {
-
+        elementwise<std::multiplies<T>>(other);
     }
 
     template<typename T>
     void CpuTensor<T>::operator/=(T other)
     {
-
+        elementwise<std::divides<T>>(other);
     }
     template<typename T>
-    void CpuTensor<T>::operator/=(std::shared_ptr<TensorBase<T>>& other)
+    void CpuTensor<T>::operator/=(const TensorBase<T>& other)
     {
-
+        elementwise<std::divides<T>>(other);
     }
 
     // Need to remove cpu operators on half, since it is just for storage on cpu.
     // Actual computations should be done on gpu.
     template<> void CpuTensor<half>::operator+=(half other) { throw NotImplemented(); }
-    template<> void CpuTensor<half>::operator+=(const std::shared_ptr<TensorBase<half>>& other) { throw NotImplemented(); }
+    template<> void CpuTensor<half>::operator+=(const TensorBase<half>& other) { throw NotImplemented(); }
     template<> void CpuTensor<half>::operator-=(half other) { throw NotImplemented(); }
-    template<> void CpuTensor<half>::operator-=(std::shared_ptr<TensorBase<half>>& other) { throw NotImplemented(); }
+    template<> void CpuTensor<half>::operator-=(const TensorBase<half>& other) { throw NotImplemented(); }
     template<> void CpuTensor<half>::operator*=(half other) { throw NotImplemented(); }
-    template<> void CpuTensor<half>::operator*=(std::shared_ptr<TensorBase<half>>& other) { throw NotImplemented(); }
+    template<> void CpuTensor<half>::operator*=(const TensorBase<half>& other) { throw NotImplemented(); }
     template<> void CpuTensor<half>::operator/=(half other) { throw NotImplemented(); }
-    template<> void CpuTensor<half>::operator/=(std::shared_ptr<TensorBase<half>>& other) { throw NotImplemented(); }
+    template<> void CpuTensor<half>::operator/=(const TensorBase<half>& other) { throw NotImplemented(); }
 
 
     #define CPUTENSOR(TYPE) template class CpuTensor<TYPE>;

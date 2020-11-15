@@ -15,6 +15,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 add_compile_definitions(CUDA=1)
+set(CUDA_ARCH_LIST Auto CACHE STRING
+    "List of CUDA architectures (e.g. Pascal, Volta, etc) or \
+compute capability versions (6.1, 7.0, etc) to generate code for. \
+Set to Auto for automatic detection (default)."
+)
+cuda_select_nvcc_arch_flags(CUDA_ARCH_FLAGS ${CUDA_ARCH_LIST})
+list(APPEND CUDA_NVCC_FLAGS ${CUDA_ARCH_FLAGS})
+message("cuda falgs: " ${CUDA_ARCH_FLAGS})
 
 # Link runTests with what we want to test and the GTest and pthread library
 # CUDA_ADD_EXECUTABLE(runTests test/tests.cpp utils/signal_handler.cpp gpu/dark.cu gpu/tensor.cu)
@@ -28,7 +36,7 @@ add_compile_definitions(CUDA=1)
 # )
 # TARGET_LINK_LIBRARIES(runTests ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread)
 
-CUDA_ADD_EXECUTABLE(runTests2 test/tests2.cpp tensor/tensor_cpu.cpp types/enum.cpp tensor/tensor_gpu.cpp)
+CUDA_ADD_EXECUTABLE(runTests2 test/tests2.cpp tensor/tensor_cpu.cpp types/enum.cpp tensor/tensor_gpu.cpp gpu/tensor.cu gpu/dark.cu)
 
 target_include_directories(runTests2 PUBLIC
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
@@ -38,6 +46,9 @@ target_include_directories(runTests2 PUBLIC
     "."
 )
 TARGET_LINK_LIBRARIES(runTests2 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread)
+
+# target_compile_options(runTests2 PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_50,code=sm_50>)
+
 
 
 add_test(runTests runTests)

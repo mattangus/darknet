@@ -60,48 +60,47 @@ namespace tensor
         template<typename T>
     void GpuTensor<T>::operator+=(T other)
     {
-
+        elementwise<gpu::plus<T>>(other);
     }
 
     template<typename T>
-    void GpuTensor<T>::operator+=(const std::shared_ptr<TensorBase<T>>& other)
+    void GpuTensor<T>::operator+=(const TensorBase<T>& other)
     {
-
+        elementwise<gpu::plus<T>>(other);
     }
 
     template<typename T>
     void GpuTensor<T>::operator-=(T other)
     {
-
+        elementwise<gpu::minus<T>>(other);
     }
     template<typename T>
-    void GpuTensor<T>::operator-=(std::shared_ptr<TensorBase<T>>& other)
+    void GpuTensor<T>::operator-=(const TensorBase<T>& other)
     {
-
+        elementwise<gpu::minus<T>>(other);
     }
 
     template<typename T>
     void GpuTensor<T>::operator*=(T other)
     {
-
+        elementwise<gpu::multiplies<T>>(other);
     }
     template<typename T>
-    void GpuTensor<T>::operator*=(std::shared_ptr<TensorBase<T>>& other)
+    void GpuTensor<T>::operator*=(const TensorBase<T>& other)
     {
-
+        elementwise<gpu::multiplies<T>>(other);
     }
 
     template<typename T>
     void GpuTensor<T>::operator/=(T other)
     {
-
+        elementwise<gpu::divides<T>>(other);
     }
     template<typename T>
-    void GpuTensor<T>::operator/=(std::shared_ptr<TensorBase<T>>& other)
+    void GpuTensor<T>::operator/=(const TensorBase<T>& other)
     {
-
+        elementwise<gpu::divides<T>>(other);
     }
-
 
     #define GpuTensor(TYPE) template class GpuTensor<TYPE>;
 

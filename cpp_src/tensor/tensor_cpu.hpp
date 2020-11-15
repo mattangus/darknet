@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <functional>
 
 #if CUDA
     #include <cuda/api_wrappers.hpp>
@@ -24,7 +25,25 @@ namespace tensor
     class CpuTensor: public TensorBase<T>
     {
     private:
-        
+        template<typename F>
+        inline void elementwise(T other)
+        {
+            #pragma omp parallel for
+            for (size_t i = 0; i < this->numElem; ++i)
+                this->data[i] = F()(this->data[i], other);
+        }
+        template<typename F>
+        inline void elementwise(const TensorBase<T>& other)
+        {
+            // TODO: broadcasting
+            assert(this->shape == other.getShape());
+            // only support same device operations
+            assert(other.getDevice() == DeviceType::CPU);
+            auto temp = other.ptr();
+            #pragma omp parallel for
+            for (size_t i = 0; i < this->numElem; ++i)
+                this->data[i] = F()(this->data[i], temp[i]);
+        }
     public:
         CpuTensor();
         CpuTensor(TensorShape& shape);
@@ -97,16 +116,16 @@ namespace tensor
         void fromArray(std::vector<T>& vec);
 
         void operator+=(T other) override;
-        void operator+=(const std::shared_ptr<TensorBase<T>>& other) override;
+        void operator+=(const TensorBase<T>& other) override;
 
         void operator-=(T other) override;
-        void operator-=(std::shared_ptr<TensorBase<T>>& other) override;
+        void operator-=(const TensorBase<T>& other) override;
 
         void operator*=(T other) override;
-        void operator*=(std::shared_ptr<TensorBase<T>>& other) override;
+        void operator*=(const TensorBase<T>& other) override;
 
         void operator/=(T other) override;
-        void operator/=(std::shared_ptr<TensorBase<T>>& other) override;
+        void operator/=(const TensorBase<T>& other) override;
 
     };
     

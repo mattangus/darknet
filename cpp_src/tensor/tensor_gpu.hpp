@@ -10,12 +10,12 @@
 
 #include "layer/activation_fn.hpp"
 #include "tensor/tensor_base.hpp"
+#include "gpu/tensor.hpp"
 
 namespace darknet
 {
 namespace tensor
 {
-
     /**
      * @brief CPU tensor
      * 
@@ -24,6 +24,21 @@ namespace tensor
     class GpuTensor: public TensorBase<T>
     {
     private:
+        template<typename F>
+        inline void elementwise(T other)
+        {
+            gpu::elementwise<T, F>(this->data, this->numElem, other);
+        }
+        template<typename F>
+        inline void elementwise(const TensorBase<T>& other)
+        {
+            // TODO: broadcasting
+            assert(this->shape == other.getShape());
+            // only support same device operations
+            assert(other.getDevice() == DeviceType::GPU);
+            gpu::elementwise<T, F>(this->data, this->numElem, other.ptr(), this->numElem);
+        }
+
         cuda::device_t _device;
     public:
         GpuTensor();
@@ -36,16 +51,16 @@ namespace tensor
         void fromArray(std::vector<T>& vec);
 
         void operator+=(T other) override;
-        void operator+=(const std::shared_ptr<TensorBase<T>>& other) override;
+        void operator+=(const TensorBase<T>& other) override;
 
         void operator-=(T other) override;
-        void operator-=(std::shared_ptr<TensorBase<T>>& other) override;
+        void operator-=(const TensorBase<T>& other) override;
 
         void operator*=(T other) override;
-        void operator*=(std::shared_ptr<TensorBase<T>>& other) override;
+        void operator*=(const TensorBase<T>& other) override;
 
         void operator/=(T other) override;
-        void operator/=(std::shared_ptr<TensorBase<T>>& other) override;
+        void operator/=(const TensorBase<T>& other) override;
 
     };
     

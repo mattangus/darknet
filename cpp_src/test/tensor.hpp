@@ -98,6 +98,75 @@ TEST(TEST_NAME, PlusEqScaler)
         ASSERT_EQ(input[i] + 1, output[i]);
 }
 
+TEST(TEST_NAME, MinusEqScaler)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+
+    std::vector<float> input(shape.numElem());
+    for(int i = 0; i < input.size(); i++)
+        input[i] = i;
+    
+    matrix3->fromArray(input);
+
+    *matrix3 -= 1;
+
+    std::vector<float> output;
+
+    matrix3->copyTo(output);
+
+    ASSERT_EQ(input.size(), output.size());
+    for(int i = 0; i < input.size(); i++)
+        ASSERT_EQ(input[i] - 1, output[i]);
+}
+
+TEST(TEST_NAME, TimesEqScaler)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+
+    std::vector<float> input(shape.numElem());
+    for(int i = 0; i < input.size(); i++)
+        input[i] = i;
+    
+    matrix3->fromArray(input);
+
+    *matrix3 *= 2;
+
+    std::vector<float> output;
+
+    matrix3->copyTo(output);
+
+    ASSERT_EQ(input.size(), output.size());
+    for(int i = 0; i < input.size(); i++)
+        ASSERT_EQ(input[i]*2, output[i]);
+}
+
+TEST(TEST_NAME, DivEqScaler)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+
+    std::vector<float> input(shape.numElem());
+    for(int i = 0; i < input.size(); i++)
+        input[i] = i;
+    
+    matrix3->fromArray(input);
+
+    *matrix3 /= 2;
+
+    std::vector<float> output;
+
+    matrix3->copyTo(output);
+
+    ASSERT_EQ(input.size(), output.size());
+    for(int i = 0; i < input.size(); i++)
+        ASSERT_EQ(input[i]/2, output[i]);
+}
+
 TEST(TEST_NAME, PlusEqTensor)
 {
     TensorShape shape({9, 3});
@@ -112,7 +181,7 @@ TEST(TEST_NAME, PlusEqTensor)
     matrix3->fromArray(input);
     matrix2->fromArray(input);
     
-    *matrix3 += matrix2;
+    *matrix3 += *matrix2;
 
     std::vector<float> output;
 
@@ -121,5 +190,80 @@ TEST(TEST_NAME, PlusEqTensor)
     ASSERT_EQ(input.size(), output.size());
     for(int i = 0; i < input.size(); i++)
         ASSERT_EQ(input[i]*2, output[i]);
+}
+
+TEST(TEST_NAME, MinusEqTensor)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+    auto matrix2 = std::make_shared<ATENSOR<float>>(shape);
+
+    std::vector<float> input(shape.numElem());
+    for(int i = 0; i < input.size(); i++)
+        input[i] = i;
+    
+    matrix3->fromArray(input);
+    matrix2->fromArray(input);
+    
+    *matrix3 -= *matrix2;
+
+    std::vector<float> output;
+
+    matrix3->copyTo(output);
+
+    ASSERT_EQ(input.size(), output.size());
+    for(int i = 0; i < input.size(); i++)
+        ASSERT_EQ(0, output[i]);
+}
+
+TEST(TEST_NAME, TimesEqTensor)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+    auto matrix2 = std::make_shared<ATENSOR<float>>(shape);
+
+    std::vector<float> input(shape.numElem());
+    for(int i = 0; i < input.size(); i++)
+        input[i] = i;
+    
+    matrix3->fromArray(input);
+    matrix2->fromArray(input);
+    
+    *matrix3 *= *matrix2;
+
+    std::vector<float> output;
+
+    matrix3->copyTo(output);
+
+    ASSERT_EQ(input.size(), output.size());
+    for(int i = 0; i < input.size(); i++)
+        ASSERT_EQ(input[i]*input[i], output[i]);
+}
+
+TEST(TEST_NAME, DivEqTensor)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+    auto matrix2 = std::make_shared<ATENSOR<float>>(shape);
+
+    std::vector<float> input(shape.numElem());
+    for(int i = 0; i < input.size(); i++)
+        input[i] = i + 1;
+    
+    matrix3->fromArray(input);
+    matrix2->fromArray(input);
+    
+    *matrix3 /= *matrix2;
+
+    std::vector<float> output;
+
+    matrix3->copyTo(output);
+
+    ASSERT_EQ(input.size(), output.size());
+    for(int i = 0; i < input.size(); i++)
+        ASSERT_EQ(1, output[i]);
 }
 

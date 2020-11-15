@@ -49,23 +49,23 @@ namespace tensor
 
     public:
 
-        DataType getType() { return dtype; }
+        DataType getType() const { return dtype; }
 
-        TensorShape getShape() { return shape; }
+        TensorShape getShape() const { return shape; }
 
         /**
          * @brief Get the Device of this tensor
          * 
          * @return DeviceType the device
          */
-        DeviceType getDevice() {return device;}
+        DeviceType getDevice() const {return device;}
 
         /**
          * @brief Get the pointer to the data. Caution: this can be pointing to cpu or gpu memory.
          * 
          * @return T* 
          */
-        T* ptr() {return data;}
+        T* ptr() const {return data;}
 
         virtual std::shared_ptr<TensorBase<T>> copy() = 0;
 
@@ -73,16 +73,16 @@ namespace tensor
         virtual void copyTo(std::vector<T>& other) = 0;
 
         virtual void operator+=(T other) = 0;
-        virtual void operator+=(const std::shared_ptr<TensorBase<T>>& other) = 0;
+        virtual void operator+=(const TensorBase<T>& other) = 0;
 
         virtual void operator-=(T other) = 0;
-        virtual void operator-=(std::shared_ptr<TensorBase<T>>& other) = 0;
+        virtual void operator-=(const TensorBase<T>& other) = 0;
 
         virtual void operator*=(T other) = 0;
-        virtual void operator*=(std::shared_ptr<TensorBase<T>>& other) = 0;
+        virtual void operator*=(const TensorBase<T>& other) = 0;
 
         virtual void operator/=(T other) = 0;
-        virtual void operator/=(std::shared_ptr<TensorBase<T>>& other) = 0;
+        virtual void operator/=(const TensorBase<T>& other) = 0;
         // template<typename F>
         // virtual void apply(F functor, Tensor<T, D>& t1) = 0;
 
