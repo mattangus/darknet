@@ -34,7 +34,7 @@ namespace layer
             // Do nothing.
         }
 
-        void backward() override
+        void backward(std::shared_ptr<tensor::TensorBase<float>> delta) override
         {
             // do nothing
         }
@@ -47,7 +47,7 @@ namespace layer
 
         void resize() override
         {
-
+            //nothing to do. The input tensor shape will be changed by the caller.
         }
 
         void init()

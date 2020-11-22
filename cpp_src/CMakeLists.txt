@@ -41,6 +41,7 @@ CUDA_ADD_EXECUTABLE(runTests2
     tensor/tensor_cpu.cpp
     types/enum.cpp
     tensor/tensor_gpu.cpp
+    layer/activation.cpp
     gpu/tensor.cu
     gpu/dark.cu)
 

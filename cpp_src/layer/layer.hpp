@@ -47,7 +47,7 @@ namespace layer
          * @brief Compute the backwards pass (gradients) of this layer
          * Analogous to layer.backward[_gpu] function pointer
          */
-        virtual void backward() = 0;
+        virtual void backward(std::shared_ptr<tensor::TensorBase<float>> delta) = 0;
         /**
          * @brief 
          * Analogous to layer.update[_gpu] function pointer
@@ -70,6 +70,12 @@ namespace layer
          * Analogous to parts of make_*_layer
          */
         // virtual void init() = 0;
+
+        friend std::ostream& operator<< (std::ostream& out, const Layer& obj)
+        {
+            out << "<" << obj.type << " layer " << obj.output->getDevice() << " " << obj.output->getType() << " " << obj.output->getShape() << ">";
+            return out;
+        }
     };
 
     

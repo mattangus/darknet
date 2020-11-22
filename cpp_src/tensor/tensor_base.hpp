@@ -49,6 +49,24 @@ namespace tensor
 
     public:
 
+        // move constructor
+        TensorBase(TensorBase&& other) : TensorBase(other.shape, other.device)
+        {
+            data = other.data;
+            other.data = nullptr;
+        }
+
+        TensorBase& operator=(TensorBase&& rhs) noexcept {
+            dtype = rhs.dtype;
+            device = rhs.device;
+            numBytes = rhs.numBytes;
+            numElem = rhs.numElem;
+            data = rhs.data;
+            rhs.data = nullptr;
+            shape = rhs.shape;
+            return *this;
+        }
+
         DataType getType() const { return dtype; }
 
         TensorShape getShape() const { return shape; }
@@ -105,16 +123,12 @@ namespace tensor
         virtual void operator/=(T other) = 0;
         virtual void operator/=(const TensorBase<T>& other) = 0;
 
-        // template<typename T1, DeviceType device1>
-        // friend std::ostream& operator<< (std::ostream& out, const TensorBase<T1, device1>& obj);
+        friend std::ostream& operator<< (std::ostream& out, const TensorBase& obj)
+        {
+            out << "<TensorBase " << obj.device << " " << obj.dtype << " " << obj.shape << ">";
+            return out;
+        }
     };
-
-
-    // template<typename T, DeviceType device>
-    // std::ostream& operator<< (std::ostream& out, const TensorBase<T, device>& obj)
-    // {
-    //     out << "<TensorBase " << obj.dtype << " " << obj.shape << ">";
-    //     return out;
-    // }
+    
 } // namespace tensor
 } // namespace darknet

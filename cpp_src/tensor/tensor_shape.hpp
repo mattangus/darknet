@@ -45,21 +45,21 @@ namespace tensor
                     return false;
             return true;
         }
-        // friend std::ostream& operator<< (std::ostream& out, const TensorShape& obj);
+        friend std::ostream& operator<< (std::ostream& out, const TensorShape& obj)
+        {
+            out << "(";
+            for(int i = 0; i < obj.dims.size(); i++)
+            {
+                out << obj.dims[i];
+                if(i != obj.dims.size() - 1)
+                    out << ", ";
+            }
+            out << ")";
+            return out;
+        }
     };
     
-    // std::ostream& operator<< (std::ostream& out, const TensorShape& obj)
-    // {
-    //     out << "(";
-    //     for(int i = 0; i < obj.dims.size(); i++)
-    //     {
-    //         out << obj.dims[i];
-    //         if(i != obj.dims.size() - 1)
-    //             out << ", ";
-    //     }
-    //     out << ")";
-    //     return out;
-    // }
+    
 
 } // namespace tensor
 } // namespace darknet

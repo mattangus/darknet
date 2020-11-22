@@ -99,4 +99,5 @@ namespace darknet
     
     std::ostream& operator<< (std::ostream& out, const DataType& obj);
     std::ostream& operator<< (std::ostream& out, const DeviceType& obj);
+    std::ostream& operator<< (std::ostream& out, const LayerType& obj);
 } // namespace darknet
