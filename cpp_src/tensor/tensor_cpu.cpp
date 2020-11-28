@@ -1,6 +1,6 @@
 #include "tensor/tensor_cpu.hpp"
 #include "utils/template.hpp"
-#include "errors.hpp"
+#include "utils/errors.hpp"
 
 #include <type_traits>
 
@@ -73,6 +73,12 @@ namespace tensor
             // std::shared_ptr<CpuTensor> temp = std::static_pointer_cast<CpuTensor>(other);
             std::memcpy(&other[0], this->data, this->numBytes);
         #endif
+    }
+
+    template<typename T>
+    std::shared_ptr<TensorBase<T>> CpuTensor<T>::make(TensorShape& shape) {
+        auto ret = std::make_shared<CpuTensor<T>>(shape);
+        return std::static_pointer_cast<TensorBase<T>>(ret);
     }
 
     template<typename T>

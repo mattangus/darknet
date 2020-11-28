@@ -47,6 +47,7 @@ namespace tensor
 
         std::shared_ptr<TensorBase<T>> copy() override;
         std::shared_ptr<TensorBase<T>> mirror() override;
+        std::shared_ptr<TensorBase<T>> make(TensorShape& shape) override;
         void copyTo(std::shared_ptr<TensorBase<T>>& other) override;
         void copyTo(std::vector<T>& other) override;
         void fromArray(std::vector<T>& vec);

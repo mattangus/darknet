@@ -8,7 +8,7 @@
 #include "types/enum.hpp"
 #include "layer/activation_fn.hpp"
 #include "tensor/helper.hpp"
-#include "errors.hpp"
+#include "utils/errors.hpp"
 
 namespace darknet
 {

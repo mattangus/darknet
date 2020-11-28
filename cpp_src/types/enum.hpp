@@ -96,8 +96,16 @@ namespace darknet
         INPUT
     };
 
+    enum PaddingType {
+        VALID,
+        SAME
+    };
+
+    PaddingType paddingFromString(std::string);
+
     
     std::ostream& operator<< (std::ostream& out, const DataType& obj);
     std::ostream& operator<< (std::ostream& out, const DeviceType& obj);
     std::ostream& operator<< (std::ostream& out, const LayerType& obj);
+    std::ostream& operator<< (std::ostream& out, const PaddingType& obj);
 } // namespace darknet

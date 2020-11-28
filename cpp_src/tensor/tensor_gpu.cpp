@@ -42,6 +42,12 @@ namespace tensor
     }
 
     template<typename T>
+    std::shared_ptr<TensorBase<T>> GpuTensor<T>::make(TensorShape& shape) {
+        auto ret = std::make_shared<GpuTensor<T>>(shape);
+        return std::static_pointer_cast<TensorBase<T>>(ret);
+    }
+
+    template<typename T>
     void GpuTensor<T>::copyTo(std::shared_ptr<TensorBase<T>>& other)
     {
         assert(other->getShape() == this->shape);

@@ -36,6 +36,15 @@ namespace tensor
             return ret;
         }
 
+        int rank()
+        {
+            return dims.size();
+        }
+
+        int operator[](const size_t i){
+            assert(i < dims.size());
+            return dims[i];
+        }
         bool operator==(const TensorShape& other)
         {
             if(other.dims.size() != dims.size())

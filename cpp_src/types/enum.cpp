@@ -182,6 +182,23 @@ namespace darknet
     }
 
 
+    PaddingType paddingFromString(std::string pad)
+    {
+        if (pad == "valid")
+            return PaddingType::VALID;
+        else if (pad == "same")
+            return PaddingType::SAME;
+        throw std::runtime_error("Invalid padding type: '" + pad + "'");
+    }
+    std::ostream& operator<< (std::ostream& out, const PaddingType& obj)
+    {
+        if (obj == PaddingType::VALID)
+            out << "valid";
+        else if (obj == PaddingType::SAME)
+            out << "same";
+        return out;
+    }
+
     template<> DataType getType<half>() { return DataType::DT_FLOAT16; }
     template<> DataType getType<float>() { return DataType::DT_FLOAT32; }
     template<> DataType getType<double>() { return DataType::DT_FLOAT64; }

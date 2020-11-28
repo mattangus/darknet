@@ -1,9 +1,10 @@
-
-
 #include <gtest/gtest.h>
+
+#include "utils/signal_handler.hpp"
 
 // Seems a bit hacky but gets the job done.
 
+// -------------------------- Tensor --------------------------
 #define ATENSOR CpuTensor
 #define BTENSOR GpuTensor
 #define TEST_NAME TestCPUTensor
@@ -24,6 +25,8 @@
 #undef BTENSOR
 #undef TEST_NAME
 
+// -------------------------- Activation --------------------------
+
 #define ATENSOR GpuTensor
 #define TEST_NAME TestGpuActivaton
 
@@ -40,8 +43,27 @@
 #undef ATENSOR
 #undef TEST_NAME
 
+// -------------------------- Conv --------------------------
+
+#define ATENSOR GpuTensor
+#define TEST_NAME TestGpuConv
+
+#include "test/convolution.hpp"
+
+#undef ATENSOR
+#undef TEST_NAME
+
+#define ATENSOR CpuTensor
+#define TEST_NAME TestCpuConv
+
+#include "test/convolution.hpp"
+
+#undef ATENSOR
+#undef TEST_NAME
+
+
 int main(int argc, char **argv) {
-    // register_handlers();
+    register_handlers();
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

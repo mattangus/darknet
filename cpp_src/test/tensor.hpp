@@ -75,6 +75,14 @@ TEST(TEST_NAME, CopyToArray)
     matrix3->copyTo(output);
 }
 
+TEST(TEST_NAME, Make)
+{
+    TensorShape shape({9, 3});
+    
+    auto matrix3 = std::make_shared<ATENSOR<float>>(shape);
+    auto matrix2 = matrix3->make(shape);
+}
+
 TEST(TEST_NAME, PlusEqScaler)
 {
     TensorShape shape({9, 3});

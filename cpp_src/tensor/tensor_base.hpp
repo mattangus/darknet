@@ -99,6 +99,14 @@ namespace tensor
         virtual std::shared_ptr<TensorBase<T>> mirror() = 0;
 
         /**
+         * @brief Convience method for constructing a new tensor on the same device as this tensor.
+         * 
+         * @param shape Shape to make
+         * @return std::shared_ptr<TensorBase<T>> 
+         */
+        virtual std::shared_ptr<TensorBase<T>> make(TensorShape& shape) = 0;
+
+        /**
          * @brief Copy to another tensor, either 
          * 
          * @param other 
