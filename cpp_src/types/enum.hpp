@@ -1,12 +1,15 @@
 #pragma once
 
 #include <ostream>
+#if CUDA
+    #include <cuda_fp16.h>
+#endif
 
 namespace darknet
 {
     enum DeviceType {
-        CPUDEVICE,
-        GPUDEVICE
+        CPU,
+        GPU
     };
 
     enum DataType {
@@ -20,6 +23,9 @@ namespace darknet
         DT_UINT32,
         DT_UINT64
     };
+
+    template<typename T>
+    DataType getType();
     
     enum ActivationType {
         LOGISTIC,
@@ -86,10 +92,12 @@ namespace darknet
         L2NORM,
         EMPTY,
         BLANK,
-        CONTRASTIVE
+        CONTRASTIVE,
+        INPUT
     };
 
     
     std::ostream& operator<< (std::ostream& out, const DataType& obj);
     std::ostream& operator<< (std::ostream& out, const DeviceType& obj);
+    std::ostream& operator<< (std::ostream& out, const LayerType& obj);
 } // namespace darknet

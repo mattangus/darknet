@@ -5,10 +5,11 @@
 
 #include "types/enum.hpp"
 #include "network/network_state.hpp"
-#include "tensor/tensor.hpp"
+#include "tensor/tensor_base.hpp"
 
 namespace darknet
 {
+
 namespace layer
 {
     /**
@@ -23,29 +24,30 @@ namespace layer
          * @brief Function for checking that the input shape is compatable
          * Analogous to parts of make_*_layer
          */
-        virtual void verifyShape() = 0;
-        /**
-         * @brief Initialize any memory (GPU or CPU) that is required.
-         * Analogous to parts of make_*_layer
-         */
-        virtual void init() = 0;
+        // virtual void verifyShape() = 0;
 
 
     public:
-        Layer(std::shared_ptr<Layer> inputLayer, LayerType type);
+        Layer(std::shared_ptr<Layer> inputLayer, LayerType type)
+            : inputLayer(inputLayer), type(type)
+        {
+            // verifyShape();
+            // init();
+        }
+    
 
         /**
          * @brief Compute the forward pass of this layer
          * 
          * Analogous to layer.froward[_gpu] function pointer
          */
-        virtual void forward(std::shared_ptr<network::NetworkState>& netState) = 0;
+        virtual void forward() = 0;
 
         /**
          * @brief Compute the backwards pass (gradients) of this layer
          * Analogous to layer.backward[_gpu] function pointer
          */
-        virtual void backward(std::shared_ptr<network::NetworkState>& netState) = 0;
+        virtual void backward(std::shared_ptr<tensor::TensorBase<float>> delta) = 0;
         /**
          * @brief 
          * Analogous to layer.update[_gpu] function pointer
@@ -61,7 +63,19 @@ namespace layer
         const LayerType type;
         
         // The output tensor for this layer.
-        std::shared_ptr<tensor::Tensor<float>> output;
+        std::shared_ptr<tensor::TensorBase<float>> output;
+
+        /**
+         * @brief Initialize any memory (GPU or CPU) that is required.
+         * Analogous to parts of make_*_layer
+         */
+        // virtual void init() = 0;
+
+        friend std::ostream& operator<< (std::ostream& out, const Layer& obj)
+        {
+            out << "<" << obj.type << " layer " << obj.output->getDevice() << " " << obj.output->getType() << " " << obj.output->getShape() << ">";
+            return out;
+        }
     };
 
     
