@@ -5,6 +5,7 @@ project("Testing")
 find_package(GTest REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 find_package(CUDA  REQUIRED)
+find_package(Eigen3 REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
 # find_package(CUDNN REQUIRED)
 
@@ -52,7 +53,7 @@ target_include_directories(runTests2 PUBLIC
     ${GTEST_INCLUDE_DIRS}
     "."
 )
-TARGET_LINK_LIBRARIES(runTests2 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(runTests2 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread Eigen3::Eigen)
 
 # target_compile_options(runTests2 PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_50,code=sm_50>)
 
