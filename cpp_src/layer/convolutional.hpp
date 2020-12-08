@@ -2,6 +2,7 @@
 
 #include "layer/layer.hpp"
 #include "tensor/tensor_shape.hpp"
+#include "params/convolution.hpp"
 
 namespace darknet
 {
@@ -11,13 +12,8 @@ namespace layer
     {
     private:
 
+    params::ConvParams convParams;
     std::shared_ptr<Layer> inputLayer;
-    int filters;
-    int kernelSize;
-    int groups;
-    std::pair<int, int> strides;
-    int dilation;
-    int padding;
     std::shared_ptr<ConvolutionalLayer> share_layer;
     bool training;
 

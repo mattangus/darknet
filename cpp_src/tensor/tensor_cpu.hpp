@@ -67,6 +67,8 @@ namespace tensor
         void operator/=(T other) override;
         void operator/=(const TensorBase<T>& other) override;
 
+        void convolve(const TensorBase<T>& filter, const params::ConvParams& convParams) override;
+
     };
 
     template<typename T, typename F>

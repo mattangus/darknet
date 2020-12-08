@@ -1,6 +1,8 @@
 #include "tensor/tensor_cpu.hpp"
 #include "utils/template.hpp"
 #include "utils/errors.hpp"
+#include "linalg/im2col.h"
+#include "linalg/gemm.h"
 
 #include <type_traits>
 
@@ -144,6 +146,31 @@ namespace tensor
     template<> void CpuTensor<half>::operator*=(const TensorBase<half>& other) { throw NotImplemented(); }
     template<> void CpuTensor<half>::operator/=(half other) { throw NotImplemented(); }
     template<> void CpuTensor<half>::operator/=(const TensorBase<half>& other) { throw NotImplemented(); }
+
+    template<typename T>
+    void CpuTensor<T>::convolve(const TensorBase<T>& filter, const params::ConvParams& convParams) {
+        assert(filter.getDevice() == this->device);
+
+        float *im = state.input + (i*l.groups + j)*(l.c / l.groups)*l.h*l.w;
+        if (l.size == 1 && l.stride == 1 && l.dilation == 1) {
+            b = im;
+        }
+        else {
+            //im2col_cpu(im, l.c / l.groups, l.h, l.w, l.size, l.stride, l.pad, b);
+
+            im2col_cpu_ext(im,   // input
+                l.c / l.groups,     // input channels
+                l.h, l.w,           // input size (h, w)
+                l.size, l.size,     // kernel size (h, w)
+                l.pad * l.dilation, l.pad * l.dilation,       // padding (h, w)
+                l.stride_y, l.stride_x, // stride (h, w)
+                l.dilation, l.dilation, // dilation (h, w)
+                b);                 // output
+
+        }
+
+        gemm(0, 0, m, n, k, 1, a, k, b, n, 1, c, n);
+    }
 
 
     #define CPUTENSOR(TYPE) template class CpuTensor<TYPE>;
