@@ -67,9 +67,7 @@ namespace tensor
 
         void operator/=(T other) override;
         void operator/=(const TensorBase<T>& other) override;
-
-        std::shared_ptr<ops::ConvBaseOp<T>> getConvolution(const std::shared_ptr<TensorBase<T>>& filter, const params::ConvParams& convParams) override;
-
+        
     };
 
     template<typename T, typename F>

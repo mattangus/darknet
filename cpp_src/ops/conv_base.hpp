@@ -15,11 +15,12 @@ namespace ops
     {
     protected:
         std::shared_ptr<tensor::TensorBase<T>> filter;
+        std::shared_ptr<tensor::TensorBase<T>> input;
         params::ConvParams convParams;
         DeviceType device;
     public:
-        ConvBaseOp(const std::shared_ptr<tensor::TensorBase<T>>& filter, const params::ConvParams& convParams, DeviceType device)
-            : filter(filter), convParams(convParams), device(device)
+        ConvBaseOp(const std::shared_ptr<tensor::TensorBase<T>>& input, const std::shared_ptr<tensor::TensorBase<T>>& filter, const params::ConvParams& convParams, DeviceType device)
+            : input(input), filter(filter), convParams(convParams), device(device)
         {
 
         }

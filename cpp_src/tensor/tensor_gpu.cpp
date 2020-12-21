@@ -115,13 +115,6 @@ namespace tensor
         elementwise<gpu::divides<T>>(other);
     }
 
-    template<typename T>
-    std::shared_ptr<ops::ConvBaseOp<T>> GpuTensor<T>::getConvolution(const std::shared_ptr<TensorBase<T>>& filter, const params::ConvParams& convParams)
-    {
-        auto op = std::make_shared<ops::gpu::ConvOp<T>>(filter, convParams);
-        return std::static_pointer_cast<ops::ConvBaseOp<T>>(op);
-    }
-
     #define GpuTensor(TYPE) template class GpuTensor<TYPE>;
 
     NUMERIC_TYPES(GpuTensor);

@@ -1,4 +1,5 @@
 #include "layer/convolutional.hpp"
+#include "ops/factory.hpp"
 
 namespace darknet
 {
@@ -56,7 +57,7 @@ namespace layer
 
         this->kernel = inputLayer->output->make(filterShape);
 
-        innerOp = inputLayer->output->getConvolution(this->kernel, convParams);
+        innerOp = ops::factory<float>::getConvolution(inputLayer->output, this->kernel, convParams);
     }
 } // namespace layer
 } // namespace darknet

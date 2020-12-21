@@ -19,7 +19,7 @@ namespace cpu
     private:
         /* data */
     public:
-        ConvOp(const std::shared_ptr<TensorBase<T>>& filter, const params::ConvParams& convParams) : ConvBaseOp<T>(filter, convParams, DeviceType::CPU)
+        ConvOp(const std::shared_ptr<TensorBase<T>>& input, const std::shared_ptr<TensorBase<T>>& filter, const params::ConvParams& convParams) : ConvBaseOp<T>(input, filter, convParams, DeviceType::CPU)
         {
 
         }
