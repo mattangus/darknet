@@ -44,6 +44,8 @@ CUDA_ADD_EXECUTABLE(runTests2
     layer/activation.cpp
     layer/convolutional.cpp
     utils/signal_handler.cpp
+    linalg/im2col.cpp
+    linalg/gemm.cpp
     gpu/tensor.cu
     gpu/dark.cu)
 

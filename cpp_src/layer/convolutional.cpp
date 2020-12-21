@@ -19,7 +19,7 @@ namespace layer
 
     void ConvolutionalLayer::forward()
     {
-
+        (*innerOp)();
     }
 
     void ConvolutionalLayer::backward(std::shared_ptr<tensor::TensorBase<float>> delta)
@@ -41,13 +41,22 @@ namespace layer
     {
         auto inputShape = this->inputLayer->output->getShape();
         assert(inputShape.rank() == 4);
+        // Shape is NCHW format
         int batch = inputShape[0];
-        int outx = (inputShape[1] + 2*convParams.padding - convParams.kernelSize) / convParams.strides.first + 1;
-        int outy = (inputShape[2] + 2*convParams.padding - convParams.kernelSize) / convParams.strides.second + 1;
+        int outx = (inputShape[2] + 2*convParams.padding - convParams.kernelSize) / convParams.strides.first + 1;
+        int outy = (inputShape[3] + 2*convParams.padding - convParams.kernelSize) / convParams.strides.second + 1;
 
         auto outShape = tensor::TensorShape({batch, outx, outy, convParams.filters});
 
         this->output = inputLayer->output->make(outShape);
+        
+        int inputDepth = inputShape[1];
+
+        auto filterShape = tensor::TensorShape({inputDepth, convParams.filters / convParams.groups, convParams.kernelSize, convParams.kernelSize});
+
+        this->kernel = inputLayer->output->make(filterShape);
+
+        innerOp = inputLayer->output->getConvolution(this->kernel, convParams);
     }
 } // namespace layer
 } // namespace darknet

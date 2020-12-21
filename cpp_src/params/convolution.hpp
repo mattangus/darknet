@@ -1,11 +1,15 @@
 #pragma once
-
+#include <utility>
 
 namespace darknet
 {
 namespace params
 {
 
+    /**
+     * @brief Container for convolution parameters
+     * 
+     */
     class ConvParams {
     public:
         int filters;

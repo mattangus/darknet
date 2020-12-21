@@ -10,6 +10,7 @@
 #include "utils/memory.hpp"
 #include "types/enum.hpp"
 #include "params/convolution.hpp"
+#include "ops/conv_base.hpp"
 
 namespace darknet
 {
@@ -132,7 +133,7 @@ namespace tensor
         virtual void operator/=(T other) = 0;
         virtual void operator/=(const TensorBase<T>& other) = 0;
 
-        virtual void convolve(const TensorBase<T>& filter, const params::ConvParams& convParams) = 0;
+        virtual std::shared_ptr<ops::ConvBaseOp<T>> getConvolution(const std::shared_ptr<TensorBase<T>>& filter, const params::ConvParams& convParams) = 0;
 
         friend std::ostream& operator<< (std::ostream& out, const TensorBase& obj)
         {

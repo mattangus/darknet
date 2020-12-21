@@ -15,6 +15,8 @@ namespace layer
     params::ConvParams convParams;
     std::shared_ptr<Layer> inputLayer;
     std::shared_ptr<ConvolutionalLayer> share_layer;
+    std::shared_ptr<tensor::TensorBase<float>> kernel;
+    std::shared_ptr<ops::ConvBaseOp<float>> innerOp;
     bool training;
 
     public:
