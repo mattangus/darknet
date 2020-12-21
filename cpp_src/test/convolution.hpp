@@ -21,13 +21,14 @@ using namespace darknet::layer;
 
 TEST(TEST_NAME, Forward)
 {
-    TensorShape shape({1, 32, 64, 3});
+    //NCHW format
+    TensorShape shape({1, 3, 32, 64});
     auto matrix2 = std::make_shared<ATENSOR<float>>(shape);
     auto temp = std::static_pointer_cast<TensorBase<float>>(matrix2);
 
     auto inputLayer = std::make_shared<Input>(temp);
     auto convLayer = std::shared_ptr<ConvolutionalLayer>(new ConvolutionalLayer(inputLayer, 32, 3, 1, {1, 1}, 1, 1, true));
-    // convLayer->forward();
+    convLayer->forward();
     // TODO: Actually check output.
 }
 
