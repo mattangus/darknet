@@ -16,7 +16,7 @@
 #define BLOCK 512
 
 #define CUDA_1D_KERNEL_LOOP(index, nthreads) for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < (nthreads); index += blockDim.x * gridDim.x)
-#define CHECK_ERROR(X) darknet::gpu::check_error_extended(X, __FILE__ " : " __FUNCTION__, __LINE__,  __DATE__ " - " __TIME__ );
+#define CHECK_ERROR(X) darknet::gpu::check_error_extended(X, std::string(__FILE__) + " : " + std::string(__FUNCTION__), __LINE__,  std::string(__DATE__) + " - " + std::string(__TIME__) );
 
 
 namespace darknet
@@ -59,7 +59,7 @@ namespace gpu
      * @param line line number for caller.
      * @param date_time date and time of compilation.
      */
-    void check_error_extended(cudnnStatus_t status, const char *file, int line, const char *date_time);
+    void check_error_extended(cudnnStatus_t status, const std::string file, int line, const std::string date_time);
 
 #endif
 } // namespace gpu

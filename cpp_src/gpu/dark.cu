@@ -1,5 +1,6 @@
-#include "gpu/dark.cuh"
+#include "gpu/dark.hpp"
 #include <stdexcept>
+#include <iostream>
 
 namespace darknet
 {
@@ -28,22 +29,22 @@ namespace gpu
     }
 
 
-    void check_error_extended(cudaError_t status, const char *file, int line, const char *date_time)
+    void check_error_extended(cudaError_t status, const std::string file, int line, const std::string date_time)
     {
         if (status != cudaSuccess) {
-            printf("CUDA status Error: file: %s() : line: %d : build time: %s \n", file, line, date_time);
+            std::cerr << "CUDA status Error: file: " << file << " : line: " << line << " : build time: " << date_time << std::endl;
             throw std::runtime_error(cudaGetErrorString(status));
         }
     }
 
-#ifdef CUDNN
-    void cudnn_check_error_extended(cudnnStatus_t status, const char *file, int line, const char *date_time)
+// #ifdef CUDNN
+    void cudnn_check_error_extended(cudnnStatus_t status, const std::string file, int line, const std::string date_time)
     {
         if (status != CUDNN_STATUS_SUCCESS) {
-            printf("\n cuDNN status Error in: file: %s() : line: %d : build time: %s \n", file, line, date_time);
+            std::cerr << "cuDNN status Error: file: " << file << " : line: " << line << " : build time: " << date_time << std::endl;
             throw std::runtime_error(cudnnGetErrorString(status));
         }
     }
-#endif
+// #endif
 } // namespace gpu
 } // namespace darknet

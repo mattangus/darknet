@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
 project("Testing")
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
+message(${CMAKE_MODULE_PATH})
+
 # Locate GTest
 find_package(GTest REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 find_package(CUDA  REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
-# find_package(CUDNN REQUIRED)
+find_package(CUDNN REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -54,12 +58,14 @@ target_include_directories(runTests2 PUBLIC
     ${CUDA_INCLUDE_DIRS}
     "../3rdparty"
     ${GTEST_INCLUDE_DIRS}
+    ${CUDNN_INCLUDE_DIRS}
     "."
 )
-TARGET_LINK_LIBRARIES(runTests2 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread)
+message("cudnn libraries: " ${CUDNN_LIBRARIES})
+TARGET_LINK_LIBRARIES(runTests2 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} pthread)
 
 # target_compile_options(runTests2 PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_50,code=sm_50>)
-
+target_compile_definitions(runTests2 PUBLIC CUDNN=1)
 
 
 add_test(runTests runTests)

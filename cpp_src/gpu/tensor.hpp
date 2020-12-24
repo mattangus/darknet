@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cuda_runtime_api.h>
-#include "gpu/dark.cuh"
+#include "gpu/dark.hpp"
 #include "types/enum.hpp"
 
 namespace darknet
