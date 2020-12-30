@@ -37,14 +37,14 @@ namespace gpu
         }
     }
 
-// #ifdef CUDNN
-    void cudnn_check_error_extended(cudnnStatus_t status, const std::string file, int line, const std::string date_time)
+#ifdef CUDNN
+    void check_error_extended(cudnnStatus_t status, const std::string file, int line, const std::string date_time)
     {
         if (status != CUDNN_STATUS_SUCCESS) {
             std::cerr << "cuDNN status Error: file: " << file << " : line: " << line << " : build time: " << date_time << std::endl;
             throw std::runtime_error(cudnnGetErrorString(status));
         }
     }
-// #endif
+#endif
 } // namespace gpu
 } // namespace darknet

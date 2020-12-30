@@ -67,16 +67,14 @@ namespace gpu
 
         void create_convolutional_cudnn_tensors()
         {
-            // TODO: gix the CHECK_ERROR() linking error
+            CHECK_ERROR(cudnnCreateTensorDescriptor(&srcTensorDesc));
+            CHECK_ERROR(cudnnCreateTensorDescriptor(&dstTensorDesc));
+            CHECK_ERROR(cudnnCreateFilterDescriptor(&weightDesc));
+            CHECK_ERROR(cudnnCreateTensorDescriptor(&dsrcTensorDesc));
+            CHECK_ERROR(cudnnCreateTensorDescriptor(&ddstTensorDesc));
+            CHECK_ERROR(cudnnCreateFilterDescriptor(&dweightDesc));
 
-            cudnnCreateTensorDescriptor(&srcTensorDesc);
-            cudnnCreateTensorDescriptor(&dstTensorDesc);
-            cudnnCreateFilterDescriptor(&weightDesc);
-            cudnnCreateTensorDescriptor(&dsrcTensorDesc);
-            cudnnCreateTensorDescriptor(&ddstTensorDesc);
-            cudnnCreateFilterDescriptor(&dweightDesc);
-
-            cudnnCreateConvolutionDescriptor(&convDesc);
+            CHECK_ERROR(cudnnCreateConvolutionDescriptor(&convDesc));
         }
 
         void operator()() override {
