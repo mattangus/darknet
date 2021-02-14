@@ -1,5 +1,6 @@
 #pragma once
 #include <utility>
+#include "params/layerParams.hpp"
 
 namespace darknet
 {

@@ -3,7 +3,12 @@ cmake_minimum_required(VERSION 3.15)
 project("Testing")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
-message(${CMAKE_MODULE_PATH})
+
+# execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PYTORCHLIB)
+set(PYTORCHLIB ${CMAKE_SOURCE_DIR}/lib/libtorch)
+message("-- PyTorchCmake: " ${PYTORCHLIB})
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PYTORCHLIB})
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Locate GTest
 find_package(GTest REQUIRED)
@@ -12,13 +17,20 @@ find_package(CUDA  REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
 find_package(CUDNN REQUIRED)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CUDNN_INCLUDE_PATH ${CUDNN_INCLUDE_DIRS})
+set(CUDNN_LIBRARY_PATH ${CUDNN_LIBRARIES})
+find_package(Torch REQUIRED)
+message("-- Troch flags: " ${TORCH_CXX_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS} -no-pie")
+
+
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
-add_compile_definitions(CUDA=1)
+# add_compile_definitions(CUDA=1)
 set(CUDA_ARCH_LIST Auto CACHE STRING
     "List of CUDA architectures (e.g. Pascal, Volta, etc) or \
 compute capability versions (6.1, 7.0, etc) to generate code for. \
@@ -26,46 +38,17 @@ Set to Auto for automatic detection (default)."
 )
 cuda_select_nvcc_arch_flags(CUDA_ARCH_FLAGS ${CUDA_ARCH_LIST})
 list(APPEND CUDA_NVCC_FLAGS ${CUDA_ARCH_FLAGS})
-message("cuda falgs: " ${CUDA_ARCH_FLAGS})
+message("-- CUDA falgs: " ${CUDA_ARCH_FLAGS})
 
-# Link runTests with what we want to test and the GTest and pthread library
-# CUDA_ADD_EXECUTABLE(runTests test/tests.cpp utils/signal_handler.cpp gpu/dark.cu gpu/tensor.cu)
+CUDA_ADD_EXECUTABLE(runTests3
+    test/test3.cpp
+)
 
-# target_include_directories(runTests PUBLIC
-#     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
-#     ${CUDA_INCLUDE_DIRS}
-#     "../3rdparty"
-#     ${GTEST_INCLUDE_DIRS}
-#     "."
-# )
-# TARGET_LINK_LIBRARIES(runTests ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} pthread)
-
-CUDA_ADD_EXECUTABLE(runTests2
-    test/tests2.cpp
-    tensor/tensor_cpu.cpp
-    types/enum.cpp
-    tensor/tensor_gpu.cpp
-    layer/activation.cpp
-    layer/convolutional.cpp
-    utils/signal_handler.cpp
-    linalg/im2col.cpp
-    linalg/gemm.cpp
-    gpu/tensor.cu
-    gpu/dark.cu)
-
-target_include_directories(runTests2 PUBLIC
+target_link_libraries(runTests3 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} ${TORCH_LIBRARIES} pthread)
+target_include_directories(runTests3 PUBLIC ${TORCH_INCLUDE_DIRS} 
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${CUDA_INCLUDE_DIRS}
-    "../3rdparty"
     ${GTEST_INCLUDE_DIRS}
-    ${CUDNN_INCLUDE_DIRS}
-    "."
-)
-message("cudnn libraries: " ${CUDNN_LIBRARIES})
-TARGET_LINK_LIBRARIES(runTests2 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} pthread)
-
-# target_compile_options(runTests2 PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_50,code=sm_50>)
-target_compile_definitions(runTests2 PUBLIC CUDNN=1)
-
+    ${CUDNN_INCLUDE_DIRS})
 
 add_test(runTests runTests)

@@ -1,5 +1,5 @@
 #include "types/enum.hpp"
-
+#include "utils/string.hpp"
 
 namespace darknet
 {
@@ -190,6 +190,95 @@ namespace darknet
             return PaddingType::SAME;
         throw std::runtime_error("Invalid padding type: '" + pad + "'");
     }
+
+    LayerType layerFromString(std::string t)
+    {
+        t = lower(t);
+        LayerType out;
+        if(t == "convolutional")
+            out = LayerType::CONVOLUTIONAL;
+        else if(t == "deconvolutional")
+            out = LayerType::DECONVOLUTIONAL;
+        else if(t == "connected")
+            out = LayerType::CONNECTED;
+        else if(t == "maxpool")
+            out = LayerType::MAXPOOL;
+        else if(t == "local_avgpool")
+            out = LayerType::LOCAL_AVGPOOL;
+        else if(t == "softmax")
+            out = LayerType::SOFTMAX;
+        else if(t == "detection")
+            out = LayerType::DETECTION;
+        else if(t == "dropout")
+            out = LayerType::DROPOUT;
+        else if(t == "crop")
+            out = LayerType::CROP;
+        else if(t == "route")
+            out = LayerType::ROUTE;
+        else if(t == "cost")
+            out = LayerType::COST;
+        else if(t == "normalization")
+            out = LayerType::NORMALIZATION;
+        else if(t == "avgpool")
+            out = LayerType::AVGPOOL;
+        else if(t == "local")
+            out = LayerType::LOCAL;
+        else if(t == "shortcut")
+            out = LayerType::SHORTCUT;
+        else if(t == "scale_channels")
+            out = LayerType::SCALE_CHANNELS;
+        else if(t == "sam")
+            out = LayerType::SAM;
+        else if(t == "active")
+            out = LayerType::ACTIVE;
+        else if(t == "rnn")
+            out = LayerType::RNN;
+        else if(t == "gru")
+            out = LayerType::GRU;
+        else if(t == "lstm")
+            out = LayerType::LSTM;
+        else if(t == "conv_lstm")
+            out = LayerType::CONV_LSTM;
+        else if(t == "history")
+            out = LayerType::HISTORY;
+        else if(t == "crnn")
+            out = LayerType::CRNN;
+        else if(t == "batchnorm")
+            out = LayerType::BATCHNORM;
+        else if(t == "network")
+            out = LayerType::NETWORK;
+        else if(t == "xnor")
+            out = LayerType::XNOR;
+        else if(t == "region")
+            out = LayerType::REGION;
+        else if(t == "yolo")
+            out = LayerType::YOLO;
+        else if(t == "gaussian_yolo")
+            out = LayerType::GAUSSIAN_YOLO;
+        else if(t == "iseg")
+            out = LayerType::ISEG;
+        else if(t == "reorg")
+            out = LayerType::REORG;
+        else if(t == "reorg_old")
+            out = LayerType::REORG_OLD;
+        else if(t == "upsample")
+            out = LayerType::UPSAMPLE;
+        else if(t == "logxent")
+            out = LayerType::LOGXENT;
+        else if(t == "l2norm")
+            out = LayerType::L2NORM;
+        else if(t == "empty")
+            out = LayerType::EMPTY;
+        else if(t == "blank")
+            out = LayerType::BLANK;
+        else if(t == "contrastive")
+            out = LayerType::CONTRASTIVE;
+        else if(t == "input")
+            out = LayerType::INPUT;
+        
+        return out;
+    }
+
     std::ostream& operator<< (std::ostream& out, const PaddingType& obj)
     {
         if (obj == PaddingType::VALID)
