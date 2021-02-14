@@ -17,7 +17,7 @@ namespace parser
     {
     protected:
         NetworkParser() {}
-        typedef std::map<LayerType, std::shared_ptr<params::layerParams>> sections_t;
+        typedef std::vector<std::pair<LayerType, std::shared_ptr<params::layerParams>>> sections_t;
 
         void build(std::shared_ptr<NetworkBuilder>& builder, sections_t& sections)
         {
@@ -29,7 +29,7 @@ namespace parser
             }
         }
 
-        virtual sections_t parseSections(std::vector<std::string> lines) = 0;
+        virtual sections_t parseSections(std::vector<std::string>& lines) = 0;
 
     public:
         ~NetworkParser() {}

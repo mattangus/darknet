@@ -193,7 +193,7 @@ namespace darknet
 
     LayerType layerFromString(std::string t)
     {
-        t = lower(t);
+        t = utils::lower(t);
         LayerType out;
         if(t == "convolutional")
             out = LayerType::CONVOLUTIONAL;
@@ -245,7 +245,7 @@ namespace darknet
             out = LayerType::CRNN;
         else if(t == "batchnorm")
             out = LayerType::BATCHNORM;
-        else if(t == "network")
+        else if(t == "net")
             out = LayerType::NETWORK;
         else if(t == "xnor")
             out = LayerType::XNOR;

@@ -41,6 +41,7 @@ message("-- CUDA flags: " ${CUDA_ARCH_FLAGS})
 message("-- GTEST: " ${GTEST_LIBRARIES})
 CUDA_ADD_EXECUTABLE(runTests3
     test/test3.cpp
+    types/enum.cpp
 )
 
 target_include_directories(runTests3 PUBLIC
@@ -54,5 +55,6 @@ target_include_directories(runTests3 PUBLIC
 message("-- CUDNN libraries: " ${CUDNN_LIBRARIES})
 TARGET_LINK_LIBRARIES(runTests3 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} ${TORCH_LIBRARIES} pthread)
 
+target_compile_definitions(runTests3 PUBLIC USECUDA)
 
 add_test(runTests runTests)

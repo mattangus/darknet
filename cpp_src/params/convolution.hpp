@@ -1,5 +1,6 @@
 #pragma once
-#include <utility>
+
+#include "utils/dict.hpp"
 #include "params/layerParams.hpp"
 
 namespace darknet
@@ -11,7 +12,7 @@ namespace params
      * @brief Container for convolution parameters
      * 
      */
-    class ConvParams {
+    class ConvParams : public layerParams {
     public:
         int filters;
         int kernelSize;

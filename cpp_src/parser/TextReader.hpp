@@ -18,7 +18,14 @@ namespace parser
         ~TextReader() {}
 
         std::vector<std::string> getLines() override {
-            std::ifstream file(path);
+            std::ifstream file;
+            file.open(path);
+            if(!file.is_open())
+            {
+                std::stringstream ss;
+                ss << "Could not open config file: " << path;
+                throw std::runtime_error(ss.str());
+            }
             std::string line;
             std::vector<std::string> ret;
             while (std::getline(file, line))

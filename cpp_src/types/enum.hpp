@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ostream>
-#if CUDA
+#if USECUDA
     #include <cuda_fp16.h>
 #endif
 

@@ -28,7 +28,7 @@ TEST(DarkentTensor, TestCreateCPUTensor)
 
 TEST(DarkentParser, Test)
 {
-    auto mReader = std::static_pointer_cast<reader>(std::make_shared<TextReader>("../cfg/yolov4.cfg"));
+    auto mReader = std::static_pointer_cast<reader>(std::make_shared<TextReader>("cfg/yolov4.cfg"));
     auto builder = std::static_pointer_cast<NetworkBuilder>(std::make_shared<torchBuilder>());
     auto parser = std::make_shared<CfgParser>();
     
