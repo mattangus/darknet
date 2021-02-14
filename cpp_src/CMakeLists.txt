@@ -3,12 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 project("Testing")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
-message(${CMAKE_MODULE_PATH})
+message("-- CMake modules: " ${CMAKE_MODULE_PATH})
 
-# execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PYTORCHLIB)
-set(PYTORCHLIB ${CMAKE_SOURCE_DIR}/lib/libtorch)
-message("-- PyTorchCmake: " ${PYTORCHLIB})
-# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PYTORCHLIB})
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Locate GTest
@@ -18,7 +14,10 @@ find_package(CUDA  REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
 find_package(CUDNN REQUIRED)
 
-
+# execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PYTORCHLIB)
+set(PYTORCHLIB ${CMAKE_SOURCE_DIR}/lib/libtorch)
+message("-- PyTorchCmake: " ${PYTORCHLIB})
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PYTORCHLIB})
 set(CUDNN_INCLUDE_PATH ${CUDNN_INCLUDE_DIRS})
 set(CUDNN_LIBRARY_PATH ${CUDNN_LIBRARIES})
 find_package(Torch REQUIRED)
@@ -50,6 +49,7 @@ target_include_directories(runTests3 PUBLIC
     ${GTEST_INCLUDE_DIRS}
     ${CUDNN_INCLUDE_DIRS}
     ${TORCH_INCLUDE_DIRS}
+    "."
 )
 message("-- CUDNN libraries: " ${CUDNN_LIBRARIES})
 TARGET_LINK_LIBRARIES(runTests3 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} ${TORCH_LIBRARIES} pthread)

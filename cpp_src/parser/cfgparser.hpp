@@ -20,13 +20,16 @@ namespace parser
     protected:
 
         sections_t parseSections(std::vector<std::string> lines) override {
-
+            for(int i = 0; i < lines.size(); i++)
+            {
+                
+            }
+            return sections_t();
         }
 
     public:
-        CfgParser(std::shared_ptr<NetworkBuilder>& builder)
+        CfgParser()
         {
-
         }
         ~CfgParser() {}
 

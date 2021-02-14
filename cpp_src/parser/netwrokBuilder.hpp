@@ -2,8 +2,10 @@
 
 #include <sstream>
 #include <unordered_map>
+#include <map>
 
 #include "params/layers.hpp"
+#include "types/enum.hpp"
 
 namespace darknet
 {
@@ -15,39 +17,39 @@ namespace parser
     protected:
         NetworkBuilder() {}
         typedef void (NetworkBuilder::*MFP)(std::shared_ptr<params::layerParams>& params);
-        const std::unordered_map<LayerType, MFP> layerMap = {
-            {LayerType::CONVOLUTIONAL, makeConvolutional},
-            {LayerType::LOCAL, makeLocal},
-            {LayerType::ACTIVE, makeActive},
-            {LayerType::RNN, makeRnn},
-            {LayerType::GRU, makeGru},
-            {LayerType::LSTM, makeLstm},
-            {LayerType::CONV_LSTM, makeConv_lstm},
-            {LayerType::HISTORY, makeHistory},
-            {LayerType::CRNN, makeCrnn},
-            {LayerType::CONNECTED, makeConnected},
-            {LayerType::CROP, makeCrop},
-            {LayerType::COST, makeCost},
-            {LayerType::REGION, makeRegion},
-            {LayerType::YOLO, makeYolo},
-            {LayerType::GAUSSIAN_YOLO, makeGaussian_yolo},
-            {LayerType::DETECTION, makeDetection},
-            {LayerType::SOFTMAX, makeSoftmax},
-            {LayerType::CONTRASTIVE, makeContrastive},
-            {LayerType::NORMALIZATION, makeNormalization},
-            {LayerType::BATCHNORM, makeBatchnorm},
-            {LayerType::MAXPOOL, makeMaxpool},
-            {LayerType::LOCAL_AVGPOOL, makeLocal_avgpool},
-            {LayerType::REORG, makeReorg},
-            {LayerType::REORG_OLD, makeReorg_old},
-            {LayerType::AVGPOOL, makeAvgpool},
-            {LayerType::ROUTE, makeRoute},
-            {LayerType::UPSAMPLE, makeUpsample},
-            {LayerType::SHORTCUT, makeShortcut},
-            {LayerType::SCALE_CHANNELS, makeScale_channels},
-            {LayerType::SAM, makeSam},
-            {LayerType::DROPOUT, makeDropout},
-            {LayerType::EMPTY, makeEmpty},
+        const std::map<LayerType, MFP> layerMap = {
+            {LayerType::CONVOLUTIONAL, &NetworkBuilder::makeConvolutional},
+            {LayerType::LOCAL, &NetworkBuilder::makeLocal},
+            {LayerType::ACTIVE, &NetworkBuilder::makeActive},
+            {LayerType::RNN, &NetworkBuilder::makeRnn},
+            {LayerType::GRU, &NetworkBuilder::makeGru},
+            {LayerType::LSTM, &NetworkBuilder::makeLstm},
+            {LayerType::CONV_LSTM, &NetworkBuilder::makeConv_lstm},
+            {LayerType::HISTORY, &NetworkBuilder::makeHistory},
+            {LayerType::CRNN, &NetworkBuilder::makeCrnn},
+            {LayerType::CONNECTED, &NetworkBuilder::makeConnected},
+            {LayerType::CROP, &NetworkBuilder::makeCrop},
+            {LayerType::COST, &NetworkBuilder::makeCost},
+            {LayerType::REGION, &NetworkBuilder::makeRegion},
+            {LayerType::YOLO, &NetworkBuilder::makeYolo},
+            {LayerType::GAUSSIAN_YOLO, &NetworkBuilder::makeGaussian_yolo},
+            {LayerType::DETECTION, &NetworkBuilder::makeDetection},
+            {LayerType::SOFTMAX, &NetworkBuilder::makeSoftmax},
+            {LayerType::CONTRASTIVE, &NetworkBuilder::makeContrastive},
+            {LayerType::NORMALIZATION, &NetworkBuilder::makeNormalization},
+            {LayerType::BATCHNORM, &NetworkBuilder::makeBatchnorm},
+            {LayerType::MAXPOOL, &NetworkBuilder::makeMaxpool},
+            {LayerType::LOCAL_AVGPOOL, &NetworkBuilder::makeLocal_avgpool},
+            {LayerType::REORG, &NetworkBuilder::makeReorg},
+            {LayerType::REORG_OLD, &NetworkBuilder::makeReorg_old},
+            {LayerType::AVGPOOL, &NetworkBuilder::makeAvgpool},
+            {LayerType::ROUTE, &NetworkBuilder::makeRoute},
+            {LayerType::UPSAMPLE, &NetworkBuilder::makeUpsample},
+            {LayerType::SHORTCUT, &NetworkBuilder::makeShortcut},
+            {LayerType::SCALE_CHANNELS, &NetworkBuilder::makeScale_channels},
+            {LayerType::SAM, &NetworkBuilder::makeSam},
+            {LayerType::DROPOUT, &NetworkBuilder::makeDropout},
+            {LayerType::EMPTY, &NetworkBuilder::makeEmpty},
         };
     public:
         ~NetworkBuilder() {}

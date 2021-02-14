@@ -38,7 +38,7 @@ namespace parser
         void parseConfig(std::shared_ptr<reader>& inputReader,
                             std::shared_ptr<NetworkBuilder>& builder)
         {
-            auto lines = reader->getLines();
+            auto lines = inputReader->getLines();
             auto sections = parseSections(lines);
             build(builder, sections);
         }
