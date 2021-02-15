@@ -70,7 +70,7 @@ namespace parser
                 LayerType lt = sec.first;
                 std::unordered_map<std::string, std::string>& vals = sec.second;
                 if(lt == LayerType::NETWORK) {
-
+                    
                 }
                 else if(lt == LayerType::CONVOLUTIONAL){
                     
