@@ -18,8 +18,8 @@ namespace pytorch
         torch::nn::Conv2d conv{nullptr};
         bool useBn;
     public:
-        Conv2d(std::shared_ptr<params::ConvParams>& params, int* input_depth) {
-            auto opt = torch::nn::Conv2dOptions(*input_depth, params->filters, params->kernelSize);
+        Conv2d(std::shared_ptr<params::ConvParams>& params, std::vector<int>& outputDepths) : DarknetModule("Conv") {
+            auto opt = torch::nn::Conv2dOptions(outputDepths.back(), params->filters, params->kernelSize);
             opt.groups(params->groups);
             opt.stride({params->strides.first, params->strides.second});
             opt.padding(params->padding);
@@ -41,7 +41,7 @@ namespace pytorch
                 bn = register_module("bn", torch::nn::BatchNorm2d(bn_opt));
             }
 
-            *input_depth = params->filters;
+            outputDepths.push_back(params->filters);
         }
         ~Conv2d() {}
 

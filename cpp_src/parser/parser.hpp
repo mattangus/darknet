@@ -21,11 +21,13 @@ namespace parser
 
         void build(std::shared_ptr<NetworkBuilder>& builder, sections_t& sections)
         {
+            int i=0;
             for(auto& s : sections) {
                 auto lt = s.first;
                 auto params = s.second;
 
                 builder->makeLayer(lt, params);
+                i++;
             }
         }
 

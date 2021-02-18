@@ -15,8 +15,9 @@ namespace params
     class MaxPoolParams : public layerParams {
     public:
 
-        int stride;
+        int stride_x, stride_y;
         int size;
+        int padding;
 
         MaxPoolParams()
         {
@@ -25,11 +26,15 @@ namespace params
 
         static std::shared_ptr<MaxPoolParams> parse(std::unordered_map<std::string, std::string>& params)
         {
-            const std::vector<std::string> required = {"stride", "size"};
+            const std::vector<std::string> required = {};
             darknet::params::StrParamParser strParams(params, required);
             auto ret = std::make_shared<MaxPoolParams>();
-            ret->stride = strParams.get<int>("stride");
+            int stride = strParams.get<int>("stride", 1);
+            ret->stride_x = strParams.get<int>("stride_x", stride);
+            ret->stride_y = strParams.get<int>("stride_y", stride);
             ret->size = strParams.get<int>("size");
+            ret->padding = strParams.get<int>("padding", ret->size - 1)/2;
+
             
             strParams.warnUnused();
             return ret;

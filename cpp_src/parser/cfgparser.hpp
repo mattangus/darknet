@@ -70,6 +70,7 @@ namespace parser
             for(int i = 0; i < sections_str.size(); i++)
             {
                 auto& sec = sections_str[i];
+                int layerNum = i - 1; // first section is always [net]
                 LayerType lt = sec.first;
                 std::unordered_map<std::string, std::string>& param_map = sec.second;
                 std::shared_ptr<params::layerParams> p;
@@ -157,7 +158,7 @@ namespace parser
                 }
                 else if(lt == LayerType::ROUTE){
                     p = std::static_pointer_cast<params::layerParams>(
-                                params::RouteParams::parse(param_map, i));
+                                params::RouteParams::parse(param_map, layerNum));
                 }
                 else if(lt == LayerType::UPSAMPLE){
                     p = std::static_pointer_cast<params::layerParams>(
@@ -165,7 +166,7 @@ namespace parser
                 }
                 else if(lt == LayerType::SHORTCUT){
                     p = std::static_pointer_cast<params::layerParams>(
-                                params::ShortcutParams::parse(param_map, i));
+                                params::ShortcutParams::parse(param_map, layerNum));
                 }
                 else if(lt == LayerType::SCALE_CHANNELS){
                     throw darknet::NotImplemented();

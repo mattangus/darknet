@@ -33,6 +33,7 @@ namespace pytorch
             for(int i = 0; i < modules.size(); i++)
             {
                 outputs.push_back(modules[i]->forward(outputs));
+                // std::cout << i << " " << modules[i]->name << " " << outputs.back().sizes() << std::endl;
             }
 
             return outputs.back();

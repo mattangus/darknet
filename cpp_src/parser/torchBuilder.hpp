@@ -19,6 +19,7 @@ namespace parser
     private:
         int prev_out_depth;
         TorchModel model;
+        std::vector<int> outputDepths;
         int layerNum = 0;
 
         void addModule(std::shared_ptr<DarknetModule>& mod, std::string name)
@@ -31,13 +32,13 @@ namespace parser
     public:
         torchBuilder(int input_depth) : prev_out_depth(input_depth)
         {
-
+            outputDepths.push_back(input_depth);
         }
         ~torchBuilder() {}
 
         void makeConvolutional(std::shared_ptr<params::layerParams>& _params) override {
             auto params = std::static_pointer_cast<params::ConvParams>(_params);
-            auto conv = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Conv2d>(params, &prev_out_depth));
+            auto conv = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Conv2d>(params, outputDepths));
 
             addModule(conv, "conv");
         }
@@ -52,7 +53,13 @@ namespace parser
         
         void makeMaxpool(std::shared_ptr<params::layerParams>& _params) override {
             auto params = std::static_pointer_cast<params::MaxPoolParams>(_params);
-            auto maxpool = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::MaxPool>(params));
+            // float pad = params->padding;
+            // float dilation = 1;
+            // float kern = params->size;
+            // float hin = 16;
+            // float stride = params->stride_x;
+            // float out = ((hin + (2*pad) - (dilation * (kern - 1)) - 1)/stride) + 1;
+            auto maxpool = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::MaxPool>(params, outputDepths));
 
             addModule(maxpool, "maxpool");
         }
@@ -79,7 +86,7 @@ namespace parser
         
         void makeRoute(std::shared_ptr<params::layerParams>& _params) override {
             auto params = std::static_pointer_cast<params::RouteParams>(_params);
-            auto route = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Route>(params));
+            auto route = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Route>(params, outputDepths));
 
             addModule(route, "route");
         }
@@ -102,7 +109,7 @@ namespace parser
         
         void makeShortcut(std::shared_ptr<params::layerParams>& _params) override {
             auto params = std::static_pointer_cast<params::ShortcutParams>(_params);
-            auto shortcut = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Shortcut>(params));
+            auto shortcut = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Shortcut>(params, outputDepths));
 
             addModule(shortcut, "shortcut");
         }
@@ -160,7 +167,10 @@ namespace parser
         }
         
         void makeYolo(std::shared_ptr<params::layerParams>& _params) override {
+            auto params = std::static_pointer_cast<params::YoloParams>(_params);
+            auto yolo = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Yolo>(params, outputDepths));
 
+            addModule(yolo, "yolo");
         }
         
         void makeGaussian_yolo(std::shared_ptr<params::layerParams>& _params) override {
@@ -180,7 +190,10 @@ namespace parser
         }
         
         void makeUpsample(std::shared_ptr<params::layerParams>& _params) override {
+            auto params = std::static_pointer_cast<params::UpsampleParams>(_params);
+            auto upsample = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Upsample>(params, outputDepths));
 
+            addModule(upsample, "upsample");
         }
         
         void makeLogxent(std::shared_ptr<params::layerParams>& _params) override {

@@ -16,12 +16,14 @@ namespace pytorch
         torch::nn::Upsample up{nullptr};
 
     public:
-        Upsample(std::shared_ptr<params::UpsampleParams>& params) {
+        Upsample(std::shared_ptr<params::UpsampleParams>& params, std::vector<int>& outputDepths) : DarknetModule("Upsample") {
             auto opt = torch::nn::UpsampleOptions();
-            std::vector<int64_t> v = {params->stride, params->stride, 1};
-            opt.size(v);
+            std::vector<double> v = {(double)params->stride, (double)params->stride};
+            opt.scale_factor(v);
             
             up = register_module("upsample", torch::nn::Upsample(opt));
+
+            outputDepths.push_back(outputDepths.back());
         }
         ~Upsample() {}
 

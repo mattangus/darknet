@@ -18,6 +18,7 @@ namespace params
         std::vector<int> layers;
         int groups;
         int gorup_id;
+        int layer_num;
 
         RouteParams()
         {
@@ -30,11 +31,14 @@ namespace params
             darknet::params::StrParamParser strParams(params, required);
             auto ret = std::make_shared<RouteParams>();
             ret->layers = strParams.getList<int>("layers");
+            // if (layer_num == 120)
+            //     std::cout << "hewre" << std::endl;
             for(int i = 0; i < ret->layers.size(); i++)
             {
                 if(ret->layers[i] < 0)
                     ret->layers[i] += layer_num;
             }
+            ret->layer_num = layer_num;
             ret->groups = strParams.get<int>("groups", 1);
             ret->gorup_id = strParams.get<int>("gorup_id", 0);
             

@@ -15,7 +15,8 @@ namespace pytorch
         /* data */
         
     public:
-        DarknetModule() {
+        std::string name;
+        DarknetModule(std::string name) : name(name) {
             
             
         }

@@ -16,11 +16,16 @@ namespace pytorch
         /* data */
         torch::nn::MaxPool2d pool{nullptr};
     public:
-        MaxPool(std::shared_ptr<params::MaxPoolParams>& params) {
+        MaxPool(std::shared_ptr<params::MaxPoolParams>& params, std::vector<int>& outputDepths) : DarknetModule("MaxPool") {
             auto opt = torch::nn::MaxPool2dOptions(params->size);
-            opt.stride(params->stride);
+            std::vector<int64_t> v = {params->stride_x, params->stride_y};
+            opt.stride(v);
+            opt.padding(params->padding);
+            opt.dilation(1);
 
             pool = register_module("pool", torch::nn::MaxPool2d(opt));
+
+            outputDepths.push_back(outputDepths.back());
         }
         ~MaxPool() {}
 

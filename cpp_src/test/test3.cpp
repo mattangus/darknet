@@ -1,5 +1,6 @@
-    #include<torch/torch.h>
+#include<torch/torch.h>
 #include <gtest/gtest.h>
+#include <chrono>
 
 #include "parser/torchBuilder.hpp"
 #include "parser/cfgparser.hpp"
@@ -48,8 +49,25 @@ int main(int argc, char **argv) {
     
     parser->parseConfig(mReader, _builder);
 
-    auto model = builder->getModel();
-    auto res = model.forward(torch::rand({1, 3, 512, 512}));
+    torch::Device device(torch::kCUDA);
 
-    std::cout << res.sizes() << std::endl;
+    auto model = builder->getModel();
+    model.to(device);
+    std::cout << model << std::endl;
+    std::cout << "cuda: " << torch::cuda::is_available() << std::endl;
+    std::cout << "cudnn: " << torch::cuda::cudnn_is_available() << std::endl;
+    std::cout << "is_cuda: " << model.parameters().back().is_cuda() << std::endl;
+    auto input = torch::rand({1, 3, 512, 512}, device);
+    std::cout << "input: " << input.device() << std::endl;
+    int n = 300;
+    for(int i = 0; i < 5; i++) // burn in
+        model.forward(input);
+    auto start = std::chrono::high_resolution_clock::now();
+    for(int i = 0; i < n; i++)
+    {
+        auto res = model.forward(input);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = end-start;
+    std::cout << (diff.count() / n) << std::endl;
 }
