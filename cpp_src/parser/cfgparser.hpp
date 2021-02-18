@@ -9,6 +9,7 @@
 #include "parser/parser.hpp"
 #include "parser/netwrokBuilder.hpp"
 #include "parser/reader.hpp"
+#include "params/layers.hpp"
 #include "types/enum.hpp"
 #include "utils/string.hpp"
 #include "utils/errors.hpp"
@@ -34,18 +35,18 @@ namespace parser
             {
                 std::unordered_map<std::string, std::string> vals;
                 std::cmatch m;
-                while(!std::regex_search(lines[i].c_str(), m, headerRe) && i < lines.size())
+                while(i < lines.size() && !std::regex_search(lines[i].c_str(), m, headerRe))
                 {
 
                     std::string cur = lines[i];
                     auto wspace = cur.find_first_not_of(whiteSpace);
-                    if(wspace != std::string::npos && cur[wspace] != '#')
+                    if(wspace != std::string::npos && cur[wspace] != '#' && cur.size() > 0)
                     {
                         // make sure it's not just white space
                         // and make sure it isn't a comment
                         // now remove whitespace
                         cur.erase(std::remove_if(cur.begin(), cur.end(), ::isspace), cur.end());
-                        auto split = utils::split(cur, "=");
+                        auto split = utils::split(cur, '=');
                         assert(split.size() == 2);
                         vals[split[0]] = split[1];
                     }
@@ -65,16 +66,20 @@ namespace parser
 
         sections_t parseParams(sections_str_t& sections_str)
         {
-            for(auto& sec : sections_str)
+            sections_t sections;
+            for(int i = 0; i < sections_str.size(); i++)
             {
+                auto& sec = sections_str[i];
                 LayerType lt = sec.first;
-                std::unordered_map<std::string, std::string>& vals = sec.second;
+                std::unordered_map<std::string, std::string>& param_map = sec.second;
+                std::shared_ptr<params::layerParams> p;
                 if(lt == LayerType::NETWORK) {
-                    
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::NetParams::parse(param_map));
                 }
                 else if(lt == LayerType::CONVOLUTIONAL){
-                    
-                    throw darknet::NotImplemented();
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::ConvParams::parse(param_map));
                 }
                 else if(lt == LayerType::LOCAL){
                     throw darknet::NotImplemented();
@@ -113,7 +118,8 @@ namespace parser
                     throw darknet::NotImplemented();
                 }
                 else if(lt == LayerType::YOLO){
-                    throw darknet::NotImplemented();
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::YoloParams::parse(param_map));
                 }
                 else if(lt == LayerType::GAUSSIAN_YOLO){
                     throw darknet::NotImplemented();
@@ -134,7 +140,8 @@ namespace parser
                     throw darknet::NotImplemented();
                 }
                 else if(lt == LayerType::MAXPOOL){
-                    throw darknet::NotImplemented();
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::MaxPoolParams::parse(param_map));
                 }
                 else if(lt == LayerType::LOCAL_AVGPOOL){
                     throw darknet::NotImplemented();
@@ -149,13 +156,16 @@ namespace parser
                     throw darknet::NotImplemented();
                 }
                 else if(lt == LayerType::ROUTE){
-                    throw darknet::NotImplemented();
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::RouteParams::parse(param_map, i));
                 }
                 else if(lt == LayerType::UPSAMPLE){
-                    throw darknet::NotImplemented();
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::UpsampleParams::parse(param_map));
                 }
                 else if(lt == LayerType::SHORTCUT){
-                    throw darknet::NotImplemented();
+                    p = std::static_pointer_cast<params::layerParams>(
+                                params::ShortcutParams::parse(param_map, i));
                 }
                 else if(lt == LayerType::SCALE_CHANNELS){
                     throw darknet::NotImplemented();
@@ -170,13 +180,15 @@ namespace parser
                     throw darknet::NotImplemented();
                 }else{
                 }
+                sections.push_back({lt, p});
             }
+            return sections;
         }
 
         sections_t parseSections(std::vector<std::string>& lines) override {
             auto sections_str = splitSections(lines);
-            
-            return sections_t();
+            auto parsed = parseParams(sections_str);
+            return parsed;
         }
 
     public:

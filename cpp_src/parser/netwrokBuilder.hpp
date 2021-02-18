@@ -56,6 +56,8 @@ namespace parser
 
         void makeLayer(LayerType lt, std::shared_ptr<params::layerParams>& params)
         {
+            if(lt == LayerType::NETWORK || lt == LayerType::INPUT)
+                return;
             auto func = layerMap.at(lt);
             (this->*func)(params);
         }

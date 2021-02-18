@@ -11,7 +11,9 @@ namespace params
     private:
 
     public:
-        layerParams() {}
+
+        int stopbackward;
+        layerParams() : stopbackward(0) {}
         ~layerParams() {}
     };
 

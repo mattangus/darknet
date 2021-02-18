@@ -42,7 +42,7 @@ namespace params
 
         static std::shared_ptr<NetParams> parse(std::unordered_map<std::string, std::string>& params)
         {
-            std::vector<std::string> required = {"batch", "subdivisions", "width", "height", "learning_rate", "match_batches"};
+            const std::vector<std::string> required = {"batch", "subdivisions", "width", "height", "learning_rate", "max_batches"};
             darknet::params::StrParamParser strParams(params, required);
             auto ret = std::make_shared<NetParams>();
             ret->batchSize = strParams.get<int>("batch", 1);
@@ -58,12 +58,15 @@ namespace params
             ret->hue = strParams.get<double>("hue", 0);
             ret->learningRate = strParams.get<double>("learningRate", 0);
             ret->burnIn = strParams.get<int>("burnIn", 0);
-            ret->maxBatches = strParams.get<int>("maxBatches", 0);
+            ret->maxBatches = strParams.get<int>("max_batches", 0);
             ret->policy = strParams.get<std::string>("policy", "constant");
             ret->steps = strParams.getList<int>("steps");
             ret->scales = strParams.getList<double>("scales");
             ret->cutmix = strParams.get<int>("cutmix", 0);
             ret->mosaic = strParams.get<int>("mosaic", 0);
+
+            strParams.warnUnused();
+            return ret;
         }
     };
 
