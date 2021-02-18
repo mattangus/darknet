@@ -103,6 +103,7 @@ namespace darknet
 
     PaddingType paddingFromString(std::string);
     LayerType layerFromString(std::string);
+    ActivationType activationFromString(std::string);
 
     
     std::ostream& operator<< (std::ostream& out, const DataType& obj);

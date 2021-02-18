@@ -41,8 +41,11 @@ int main(int argc, char **argv) {
     // register_handlers();
     // testing::InitGoogleTest(&argc, argv);
     // return RUN_ALL_TESTS();
+    std::string path = "cfg/yolov4.cfg";
+    if(argc == 2)
+        path = argv[1];
 
-    auto mReader = std::static_pointer_cast<reader>(std::make_shared<TextReader>("cfg/yolov4.cfg"));
+    auto mReader = std::static_pointer_cast<reader>(std::make_shared<TextReader>(path));
     auto builder = std::make_shared<torchBuilder>(3);
     auto _builder = std::static_pointer_cast<NetworkBuilder>(builder);
     auto parser = std::make_shared<CfgParser>();
@@ -53,13 +56,13 @@ int main(int argc, char **argv) {
 
     auto model = builder->getModel();
     model.to(device);
-    std::cout << model << std::endl;
-    std::cout << "cuda: " << torch::cuda::is_available() << std::endl;
-    std::cout << "cudnn: " << torch::cuda::cudnn_is_available() << std::endl;
-    std::cout << "is_cuda: " << model.parameters().back().is_cuda() << std::endl;
+    // std::cout << model << std::endl;
+    // std::cout << "cuda: " << torch::cuda::is_available() << std::endl;
+    // std::cout << "cudnn: " << torch::cuda::cudnn_is_available() << std::endl;
+    // std::cout << "is_cuda: " << model.parameters().back().is_cuda() << std::endl;
     auto input = torch::rand({1, 3, 512, 512}, device);
-    std::cout << "input: " << input.device() << std::endl;
-    int n = 300;
+    // std::cout << "input: " << input.device() << std::endl;
+    int n = 100;
     for(int i = 0; i < 5; i++) // burn in
         model.forward(input);
     auto start = std::chrono::high_resolution_clock::now();
@@ -70,4 +73,10 @@ int main(int argc, char **argv) {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff = end-start;
     std::cout << (diff.count() / n) << std::endl;
+
+    auto res = model.forward(input);
+    for(int i = 0; i < res.size(); i++)
+    {
+        std::cout << res[i].sizes() << std::endl;
+    }
 }

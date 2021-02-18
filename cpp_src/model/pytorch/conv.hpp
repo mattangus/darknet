@@ -3,6 +3,7 @@
 #include <torch/torch.h>
 #include "params/layers.hpp"
 #include "model/pytorch/dark_module.hpp"
+#include "model/pytorch/activation.hpp"
 
 namespace darknet
 {
@@ -16,7 +17,9 @@ namespace pytorch
         /* data */
         torch::nn::BatchNorm2d bn{nullptr};
         torch::nn::Conv2d conv{nullptr};
-        bool useBn;
+        bool useBn, useAct;
+        // std::shared_ptr<ActivationModule> act;
+        ActivationType actType;
     public:
         Conv2d(std::shared_ptr<params::ConvParams>& params, std::vector<int>& outputDepths) : DarknetModule("Conv") {
             auto opt = torch::nn::Conv2dOptions(outputDepths.back(), params->filters, params->kernelSize);
@@ -41,6 +44,11 @@ namespace pytorch
                 bn = register_module("bn", torch::nn::BatchNorm2d(bn_opt));
             }
 
+            // std::stringstream ss;
+            // ss << params->activation;
+            actType = params->activation;
+            // act = register_module(ss.str(), getActivation(params->activation));
+
             outputDepths.push_back(params->filters);
         }
         ~Conv2d() {}
@@ -51,7 +59,8 @@ namespace pytorch
             if(useBn)
                 output = bn->forward(output);
 
-            return output;
+            return activate(output, actType);
+            // return act->forward(output);
         }
 
     };

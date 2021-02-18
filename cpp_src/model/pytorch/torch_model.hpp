@@ -17,27 +17,46 @@ namespace pytorch
     private:
         std::vector<std::shared_ptr<DarknetModule>> modules;
         std::vector<torch::Tensor> outputs;
+        std::unordered_set<int> outputLayers;
     public:
         TorchModel(/* args */) {}
         ~TorchModel() {}
 
-        void addModule(std::shared_ptr<DarknetModule>& mod, std::string& name)
+        void addModule(std::shared_ptr<DarknetModule>& mod, std::string& name, bool outputLayer)
         {
+            if(outputLayer)
+                outputLayers.emplace(modules.size());
             modules.push_back(register_module(name, mod));
         }
 
-        torch::Tensor forward(torch::Tensor input)
+        std::vector<torch::Tensor> forward(torch::Tensor input)
         {
+            std::vector<torch::Tensor> ret;
+            ret.reserve(outputLayers.size());
+
             outputs.clear();
             outputs.push_back(input);
             for(int i = 0; i < modules.size(); i++)
             {
                 outputs.push_back(modules[i]->forward(outputs));
+                if(outputLayers.count(i) > 0)
+                    ret.push_back(outputs.back());
                 // std::cout << i << " " << modules[i]->name << " " << outputs.back().sizes() << std::endl;
             }
 
-            return outputs.back();
+            return ret;
         }
+
+        void getBoxes(std::vector<torch::Tensor> outputs)
+        {
+
+        }
+
+        void getBoxes(torch::Tensor output)
+        {
+
+        }
+
     };
 
 } // namespace pytorch

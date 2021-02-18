@@ -3,6 +3,7 @@
 #include "utils/dict.hpp"
 #include "params/layerParams.hpp"
 #include "params/strParser.hpp"
+#include "types/enum.hpp"
 
 namespace darknet
 {
@@ -22,7 +23,7 @@ namespace params
         std::pair<int,int> strides;
         int dilation;
         int padding;
-        std::string activation;
+        ActivationType activation;
 
         ConvParams() {}
 
@@ -60,7 +61,8 @@ namespace params
             if(pad) ret->padding = ret->kernelSize / 2;
 
             ret->filters = strParams.get<int>("filters", 0);
-            ret->activation = strParams.get<std::string>("activation", "logistic");
+            auto activation = strParams.get<std::string>("activation", "logistic");
+            ret->activation = activationFromString(activation);
             ret->stopbackward = strParams.get<int>("stopbackward", 0);
             
             strParams.warnUnused();

@@ -8,3 +8,4 @@
 #include "model/pytorch/yolo.hpp"
 #include "model/pytorch/torch_model.hpp"
 #include "model/pytorch/upsample.hpp"
+#include "model/pytorch/activation.hpp"

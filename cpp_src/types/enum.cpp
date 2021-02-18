@@ -182,6 +182,35 @@ namespace darknet
     }
 
 
+    ActivationType activationFromString(std::string str)
+    {
+        if(str == "logistic") return ActivationType::LOGISTIC;
+        if(str == "relu") return ActivationType::RELU;
+        if(str == "relu6") return ActivationType::RELU6;
+        if(str == "relie") return ActivationType::RELIE;
+        if(str == "linear") return ActivationType::LINEAR;
+        if(str == "ramp") return ActivationType::RAMP;
+        if(str == "tanh") return ActivationType::TANH;
+        if(str == "plse") return ActivationType::PLSE;
+        if(str == "revleaky") return ActivationType::REVLEAKY;
+        if(str == "leaky") return ActivationType::LEAKY;
+        if(str == "elu") return ActivationType::ELU;
+        if(str == "loggy") return ActivationType::LOGGY;
+        if(str == "stair") return ActivationType::STAIR;
+        if(str == "hardtan") return ActivationType::HARDTAN;
+        if(str == "lhtan") return ActivationType::LHTAN;
+        if(str == "selu") return ActivationType::SELU;
+        if(str == "gelu") return ActivationType::GELU;
+        if(str == "swish") return ActivationType::SWISH;
+        if(str == "mish") return ActivationType::MISH;
+        if(str == "hard_mish") return ActivationType::HARD_MISH;
+        if(str == "norm_chan") return ActivationType::NORM_CHAN;
+        if(str == "norm_chan_softmax") return ActivationType::NORM_CHAN_SOFTMAX;
+        if(str == "norm_chan_softmax_maxval") return ActivationType::NORM_CHAN_SOFTMAX_MAXVAL;
+
+        throw std::runtime_error("activation not found: " + str);
+    }
+
     PaddingType paddingFromString(std::string pad)
     {
         if (pad == "valid")
