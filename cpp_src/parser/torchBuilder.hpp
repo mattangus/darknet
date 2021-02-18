@@ -6,13 +6,13 @@
 #include "parser/netwrokBuilder.hpp"
 #include "model/pytorch/modules.hpp"
 
-
 namespace darknet
 {
 namespace parser
 {
     using model::pytorch::TorchModel;
     using model::pytorch::DarknetModule;
+    using model::pytorch::Yolo;
     
     class torchBuilder : public NetworkBuilder
     {
@@ -22,12 +22,20 @@ namespace parser
         std::vector<int> outputDepths;
         int layerNum = 0;
 
-        void addModule(std::shared_ptr<DarknetModule>& mod, std::string name, bool outputLayer = false)
+        void addModule(std::shared_ptr<DarknetModule>& mod, std::string name)
         {
             std::stringstream ss;
             ss << name << "_" << layerNum++;
             std::string s = ss.str();
-            model.addModule(mod, s, outputLayer);
+            model.addModule(mod, s);
+        }
+
+        void addModule(std::shared_ptr<Yolo>& mod, std::string name)
+        {
+            std::stringstream ss;
+            ss << name << "_" << layerNum++;
+            std::string s = ss.str();
+            model.addModule(mod, s);
         }
     public:
         torchBuilder(int input_depth) : prev_out_depth(input_depth)
@@ -168,9 +176,9 @@ namespace parser
         
         void makeYolo(std::shared_ptr<params::layerParams>& _params) override {
             auto params = std::static_pointer_cast<params::YoloParams>(_params);
-            auto yolo = std::static_pointer_cast<DarknetModule>(std::make_shared<model::pytorch::Yolo>(params, outputDepths));
+            auto yolo = std::make_shared<model::pytorch::Yolo>(params, outputDepths);
 
-            addModule(yolo, "yolo", true);
+            addModule(yolo, "yolo");
         }
         
         void makeGaussian_yolo(std::shared_ptr<params::layerParams>& _params) override {

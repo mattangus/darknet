@@ -16,17 +16,23 @@ namespace pytorch
     {
     private:
         std::vector<std::shared_ptr<DarknetModule>> modules;
+        std::vector<std::shared_ptr<Yolo>> outputModules;
         std::vector<torch::Tensor> outputs;
         std::unordered_set<int> outputLayers;
     public:
         TorchModel(/* args */) {}
         ~TorchModel() {}
 
-        void addModule(std::shared_ptr<DarknetModule>& mod, std::string& name, bool outputLayer)
+        void addModule(std::shared_ptr<DarknetModule>& mod, std::string& name)
         {
-            if(outputLayer)
-                outputLayers.emplace(modules.size());
             modules.push_back(register_module(name, mod));
+        }
+
+        void addModule(std::shared_ptr<Yolo>& mod, std::string& name)
+        {
+            outputLayers.emplace(modules.size());
+            modules.push_back(register_module(name, std::static_pointer_cast<DarknetModule>(mod)));
+            outputModules.push_back(mod);
         }
 
         std::vector<torch::Tensor> forward(torch::Tensor input)
@@ -47,14 +53,12 @@ namespace pytorch
             return ret;
         }
 
-        void getBoxes(std::vector<torch::Tensor> outputs)
+        void getBoxes(std::vector<torch::Tensor> outputs, std::vector<int> inputSize)
         {
-
-        }
-
-        void getBoxes(torch::Tensor output)
-        {
-
+            for(int i = 0; i < outputs.size(); i++)
+            {
+                outputModules[i]->getBoxes(outputs[i], inputSize);
+            }
         }
 
     };

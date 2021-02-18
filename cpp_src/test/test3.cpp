@@ -79,4 +79,6 @@ int main(int argc, char **argv) {
     {
         std::cout << res[i].sizes() << std::endl;
     }
+    std::cout << std::endl;
+    model.getBoxes(res, {512, 512});
 }
