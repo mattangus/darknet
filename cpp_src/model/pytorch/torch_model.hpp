@@ -57,7 +57,7 @@ namespace pytorch
         {
             for(int i = 0; i < outputs.size(); i++)
             {
-                outputModules[i]->getBoxes(outputs[i], inputSize);
+                outputModules[i]->getBoxes(outputs[i], inputSize, 0.5);
             }
         }
 

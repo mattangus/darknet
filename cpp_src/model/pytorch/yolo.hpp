@@ -1,8 +1,12 @@
 #pragma once
 
 #include <torch/torch.h>
+#include <torchvision/vision.h>
+#include <torchvision/nms.h>
 #include "params/layers.hpp"
 #include "model/pytorch/dark_module.hpp"
+#include "types/types.hpp"
+
 
 namespace darknet
 {
@@ -54,13 +58,15 @@ namespace pytorch
             return ret.reshape({shape[0], nachors, -1, shape[2], shape[3]});
         }
 
-        void getBoxes(torch::Tensor output, std::vector<int> inputSize)
+        std::vector<Detection> getBoxes(torch::Tensor output, std::vector<int> inputSize, float thresh)
         {
             assert(output.dim() == 5);
             assert(inputSize.size() == 2);
 
+            int batch = output.sizes()[0];
             int grid_x = output.sizes()[3];
             int grid_y = output.sizes()[4];
+            
             int start = 0;
             auto grid_xy = torch::meshgrid({torch::range(0, grid_x-1, torch::kF32).to(anchors.device()), torch::range(0, grid_y-1, torch::kF32).to(anchors.device())});
             auto grid = torch::stack(grid_xy, 0).unsqueeze(0).unsqueeze(0);
@@ -69,6 +75,8 @@ namespace pytorch
             auto box_hw = torch::exp(output.index({Slice(), Slice(), Slice(2, 4)}));
             auto objectivity = output.index({Slice(), Slice(), Slice(4, 5)});
             auto class_prob = output.index({Slice(), Slice(), Slice(5, None)});
+
+            int numClass = class_prob.sizes()[2];
 
             auto inSizes = torch::from_blob(inputSize.data(), {(long)inputSize.size()}, torch::kInt32).toType(torch::kF32).to(anchors.device());
 
@@ -82,13 +90,21 @@ namespace pytorch
 
             box_hw = box_hw * anchorsScaled;
 
-            // std::cout << box_xy.sizes() << std::endl;
             // std::cout << grid.sizes() << std::endl;
             // std::cout << gridSizes.sizes() << std::endl;
 
+            std::cout << class_prob.sizes() << std::endl;
+
             box_xy = (box_xy + grid) / gridSizes;
             
+            objectivity = objectivity.reshape({batch, -1});
+            auto mask = objectivity > thresh;
+            box_xy = box_xy.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask);
+            box_hw = box_hw.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask);
+            objectivity = objectivity.index(mask).unsqueeze(-1);
+            class_prob = class_prob.permute({0,1,3,4,2}).reshape({batch, -1, numClass}).index(mask) * objectivity;
 
+            
         }
     };
 } // namespace torch

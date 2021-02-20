@@ -13,6 +13,7 @@ find_package(CUDAToolkit REQUIRED)
 find_package(CUDA  REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
 find_package(CUDNN REQUIRED)
+find_package(OpenCV REQUIRED)
 
 execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PYTORCHLIB)
 # set(PYTORCHLIB ${CMAKE_SOURCE_DIR}/lib/libtorch)
@@ -21,6 +22,9 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PYTORCHLIB})
 set(CUDNN_INCLUDE_PATH ${CUDNN_INCLUDE_DIRS})
 set(CUDNN_LIBRARY_PATH ${CUDNN_LIBRARIES})
 find_package(Torch REQUIRED)
+find_package(TorchVision REQUIRED)
+
+add_compile_definitions(WITH_CUDA=1)
 message("-- Troch flags: " ${TORCH_CXX_FLAGS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -53,7 +57,7 @@ target_include_directories(runTests3 PUBLIC
     "."
 )
 message("-- CUDNN libraries: " ${CUDNN_LIBRARIES})
-TARGET_LINK_LIBRARIES(runTests3 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} ${TORCH_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(runTests3 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} ${TORCH_LIBRARIES} TorchVision::TorchVision pthread)
 
 target_compile_definitions(runTests3 PUBLIC USECUDA)
 
