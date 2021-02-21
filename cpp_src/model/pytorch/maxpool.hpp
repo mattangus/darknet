@@ -32,6 +32,11 @@ namespace pytorch
         torch::Tensor forward(std::vector<torch::Tensor>& outputs) override {
             return pool->forward(outputs.back());
         }
+
+        void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override
+        {
+            return;
+        }
     };
 } // namespace torch
 } // namespace model

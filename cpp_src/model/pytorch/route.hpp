@@ -39,6 +39,12 @@ namespace pytorch
             }
             return torch::cat(tensors, 1);
         }
+
+
+        void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override
+        {
+            return;
+        }
     };
 } // namespace torch
 } // namespace model

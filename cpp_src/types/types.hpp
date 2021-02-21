@@ -10,7 +10,8 @@ namespace darknet
     private:
         /* data */
     public:
-        BoundingBox(/* args */) {}
+        float cx, cy, h, w;
+        BoundingBox(float cx, float cy, float h, float w) : cx(cx), cy(cy), h(h), w(w) {}
         ~BoundingBox() {}
     };
 
@@ -32,7 +33,7 @@ namespace darknet
         {
             if(_class_id == -1)
             {
-
+                _class_id = std::distance(scores.begin(), std::max_element(scores.begin(), scores.end()));
             }
             return _class_id;
         }

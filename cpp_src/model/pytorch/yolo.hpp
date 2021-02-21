@@ -3,6 +3,7 @@
 #include <torch/torch.h>
 #include <torchvision/vision.h>
 #include <torchvision/nms.h>
+#include <torch/extension.h>
 #include "params/layers.hpp"
 #include "model/pytorch/dark_module.hpp"
 #include "types/types.hpp"
@@ -58,7 +59,7 @@ namespace pytorch
             return ret.reshape({shape[0], nachors, -1, shape[2], shape[3]});
         }
 
-        std::vector<Detection> getBoxes(torch::Tensor output, std::vector<int> inputSize, float thresh)
+        void getBoxes(torch::Tensor output, std::vector<int> inputSize, float thresh, std::vector<std::vector<Detection>>& outputBoxes)
         {
             assert(output.dim() == 5);
             assert(inputSize.size() == 2);
@@ -93,18 +94,51 @@ namespace pytorch
             // std::cout << grid.sizes() << std::endl;
             // std::cout << gridSizes.sizes() << std::endl;
 
-            std::cout << class_prob.sizes() << std::endl;
+            // std::cout << class_prob.sizes() << std::endl;
 
             box_xy = (box_xy + grid) / gridSizes;
             
             objectivity = objectivity.reshape({batch, -1});
             auto mask = objectivity > thresh;
-            box_xy = box_xy.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask);
-            box_hw = box_hw.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask);
+            box_xy = box_xy.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask).reshape({batch, -1, 2});
+            box_hw = box_hw.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask).reshape({batch, -1, 2});
             objectivity = objectivity.index(mask).unsqueeze(-1);
-            class_prob = class_prob.permute({0,1,3,4,2}).reshape({batch, -1, numClass}).index(mask) * objectivity;
+            class_prob = class_prob.permute({0,1,3,4,2}).reshape({batch, -1, numClass}).index(mask).reshape({batch, -1, numClass}) * objectivity;
 
-            
+            // std::cout << box_xy.sizes() << std::endl;
+
+            auto box_xy_cpu = box_xy.detach().to(torch::kCPU);
+            auto box_hw_cpu = box_hw.detach().to(torch::kCPU);
+            auto class_prob_cpu = class_prob.detach().to(torch::kCPU);
+
+            int numDet = box_xy.sizes()[1];
+
+            if(outputBoxes.size() != batch)
+                outputBoxes.resize(batch);
+
+            for(int b = 0; b < batch; b++)
+            {
+                outputBoxes.reserve(outputBoxes.size() + numDet);
+                for(int i = 0; i < numDet; i++)
+                {
+                    auto cur_scores = class_prob_cpu.index({b, i});
+                    std::vector<float> scores(cur_scores.numel());
+                    std::memcpy((void *) scores.data(), cur_scores.data_ptr(), sizeof(float) * cur_scores.numel());
+                    auto x = box_xy_cpu[b][i][0];
+                    auto y = box_xy_cpu[b][i][1];
+                    auto w = box_hw_cpu[b][i][0];
+                    auto h = box_hw_cpu[b][i][1];
+
+                    BoundingBox box(x.item<float>(), y.item<float>(), w.item<float>(), h.item<float>());
+
+                    outputBoxes[b].push_back(Detection(box, scores));
+                }
+            }
+        }
+
+        void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override
+        {
+            return;
         }
     };
 } // namespace torch

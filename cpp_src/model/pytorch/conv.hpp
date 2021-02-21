@@ -40,7 +40,7 @@ namespace pytorch
                 auto bn_opt = torch::nn::BatchNorm2dOptions(params->filters);
                 bn_opt.eps(0.00001); // line 499 of convolutional_kernels.cu
                 bn_opt.momentum(0.01); // line 496 of same file
-                bn_opt.affine(false);
+                bn_opt.affine(true);
                 bn = register_module("bn", torch::nn::BatchNorm2d(bn_opt));
             }
 
@@ -61,6 +61,23 @@ namespace pytorch
 
             return activate(output, actType);
             // return act->forward(output);
+        }
+
+        void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override
+        {
+
+            if(useBn)
+            {
+                loadIntoTensor(&(bn->bias), weightsReader);
+                loadIntoTensor(&(bn->weight), weightsReader);
+                loadIntoTensor(&(bn->running_mean), weightsReader);
+                loadIntoTensor(&(bn->running_var), weightsReader);
+            }
+            else
+            {
+                loadIntoTensor(&(conv->bias), weightsReader);
+            }
+            loadIntoTensor(&(conv->weight), weightsReader);
         }
 
     };

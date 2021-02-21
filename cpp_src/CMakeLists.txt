@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project("Testing")
+project(Darknet)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
 message("-- CMake modules: " ${CMAKE_MODULE_PATH})
@@ -13,10 +13,10 @@ find_package(CUDAToolkit REQUIRED)
 find_package(CUDA  REQUIRED)
 # include_directories("${CUDA_INCLUDE_DIRS}")
 find_package(CUDNN REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package( OpenCV REQUIRED )
 
-execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PYTORCHLIB)
-# set(PYTORCHLIB ${CMAKE_SOURCE_DIR}/lib/libtorch)
+# execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)" OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PYTORCHLIB)
+set(PYTORCHLIB ${CMAKE_SOURCE_DIR}/lib/libtorch)
 message("-- PyTorchCmake: " ${PYTORCHLIB})
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PYTORCHLIB})
 set(CUDNN_INCLUDE_PATH ${CUDNN_INCLUDE_DIRS})
@@ -54,10 +54,24 @@ target_include_directories(runTests3 PUBLIC
     ${GTEST_INCLUDE_DIRS}
     ${CUDNN_INCLUDE_DIRS}
     ${TORCH_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
     "."
 )
 message("-- CUDNN libraries: " ${CUDNN_LIBRARIES})
-TARGET_LINK_LIBRARIES(runTests3 ${CUDA_LIBRARIES} ${GTEST_LIBRARIES} ${CUDNN_LIBRARIES} ${TORCH_LIBRARIES} TorchVision::TorchVision pthread)
+message("-- OpenCV libraries: " ${OpenCV_LIBS})
+TARGET_LINK_LIBRARIES(runTests3
+    ${CUDA_LIBRARIES}
+    ${GTEST_LIBRARIES}
+    ${CUDNN_LIBRARIES}
+    ${TORCH_LIBRARIES}
+    ${OpenCV_LIBS}
+    TorchVision::TorchVision
+    pthread
+    opencv_core
+    opencv_highgui
+    opencv_imgproc
+    opencv_imgcodecs
+)
 
 target_compile_definitions(runTests3 PUBLIC USECUDA)
 

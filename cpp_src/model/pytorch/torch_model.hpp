@@ -53,12 +53,32 @@ namespace pytorch
             return ret;
         }
 
-        void getBoxes(std::vector<torch::Tensor> outputs, std::vector<int> inputSize)
+        std::vector<std::vector<Detection>> getBoxes(std::vector<torch::Tensor> outputs, std::vector<int> inputSize, float thresh)
         {
+            std::vector<std::vector<Detection>> ret;
             for(int i = 0; i < outputs.size(); i++)
             {
-                outputModules[i]->getBoxes(outputs[i], inputSize, 0.5);
+                outputModules[i]->getBoxes(outputs[i], inputSize, thresh, ret);
             }
+
+            return ret;
+        }
+
+        void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader)
+        {
+            auto major = weightsReader->read<int32_t>();
+            auto minor = weightsReader->read<int32_t>();
+            auto revision = weightsReader->read<int32_t>();
+            auto seen = weightsReader->read<int32_t>();
+            weightsReader->read<int32_t>(); // extra
+
+            for(auto& mod : modules)
+            {
+                mod->loadWeights(weightsReader);
+            }
+
+            auto numLeft = weightsReader->bytesLeft();
+            assert(numLeft == 0);
         }
 
     };

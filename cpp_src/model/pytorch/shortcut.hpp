@@ -32,6 +32,11 @@ namespace pytorch
                 output += outputs[layers[i] + 1]; // input layer is in the outputs list
             return output;
         }
+
+        void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override
+        {
+            return;
+        }
     };
 } // namespace torch
 } // namespace model
