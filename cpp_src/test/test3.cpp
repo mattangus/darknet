@@ -130,12 +130,13 @@ int main(int argc, char **argv) {
 
     torch::Device device(torch::kCUDA);
 
-    std::string cfgPath = "cfg/yolov4.cfg";
-    std::string weightsPath = "original_weights/yolov4/yolov4.weights";
+    std::string cfgPath = "/home/matt/workspace/libtorch-yolov3/models/yolov3.cfg";
+    std::string weightsPath = "/home/matt/workspace/libtorch-yolov3/models/yolov3.weights";
     std::string inputPath = "data/dog.jpg";
     auto frame = cv::imread(inputPath, -1);
     cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-    frame.convertTo(frame, CV_32FC3, 1.0f / 255.0f);
+    frame.convertTo(frame, CV_32FC3, 1.0f);
+    frame = frame / 255.0f;
     cv::resize(frame, frame, {512, 512}, 0, 0, cv::INTER_NEAREST);
 
     // std::cout << frame << std::endl;
@@ -189,7 +190,7 @@ int main(int argc, char **argv) {
     //     std::cout << res[i].sizes() << std::endl;
     // }
     // std::cout << std::endl;
-    float thresh = 0.1;
+    float thresh = 0.001;
     auto boxes = model.getBoxes(res, {frame_h, frame_w}, thresh);
 
     // for(int i = 0; i < 10; i++)
@@ -198,7 +199,7 @@ int main(int argc, char **argv) {
     //     std::cout << out.sizes() << std::endl;
     //     darknet::vis::imshow("here", out.index({0, 0}));
     // }
-
+    std::set<std::string> care = {"dog", "car", "bicycle", "truck"};
     for(int batch = 0; batch < boxes.size(); batch++)
     {
         for(int i = 0; i < boxes[batch].size(); i++)
@@ -217,6 +218,8 @@ int main(int argc, char **argv) {
             }
             // std::cout << "max: " << max << std::endl;
             if(max < thresh)
+                continue;
+            if(care.count(names[class_id]) == 0)
                 continue;
             auto tl = cv::Point((b.cx - b.w/2)*frame_w, (b.cy - b.h/2)*frame_h);
             auto br = cv::Point((b.cx + b.w/2)*frame_w, (b.cy + b.h/2)*frame_h);
