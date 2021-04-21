@@ -239,24 +239,24 @@ namespace pytorch
 
             auto anchorsScaled = (anchors / inSizes);
 
-            // std::set<std::string> care = {"dog", "car", "bicycle", "truck"};
+            std::set<std::string> care = {"dog", "car", "bicycle", "truck"};
 
-            // vis::imshow("gridx", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 0}), 4);
-            // vis::imshow("gridy", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 1}), 4);
-            // vis::imshow("objectivity", std::get<0>((class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass}).max(-1)).index({Slice(), Slice(), 0}), 4);
-            // vis::imshow("box_x", box_xy.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 0}), 4);
-            // vis::imshow("box_y", box_xy.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 1}), 4);
-            // vis::imshow("box_h", box_hw.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 0}), 4);
-            // vis::imshow("box_w", box_hw.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 1}), 4);
+            vis::imshow("gridx", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 0}), 4);
+            vis::imshow("gridy", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 1}), 4);
+            vis::imshow("objectivity", std::get<0>((class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass}).max(-1)).index({Slice(), Slice(), 0}), 4);
+            vis::imshow("box_x", box_xy.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 0}), 4);
+            vis::imshow("box_y", box_xy.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 1}), 4);
+            vis::imshow("box_h", box_hw.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 0}), 4);
+            vis::imshow("box_w", box_hw.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 1}), 4);
 
-            // auto temp_class = (class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass});
-            // for(int i = 0; i < names_.size(); i++)
-            //     if(care.count(names_[i]) > 0)
-            //     {
-            //         vis::imshow(names_[i], temp_class.index({Slice(), Slice(), 0, i}), 4);
-            //         std::cout << names_[i] << ": " << temp_class.index({Slice(), Slice(), Slice(), i}).max() << std::endl;
-            //     }
-            // cv::waitKey();
+            auto temp_class = (class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass});
+            for(int i = 0; i < names_.size(); i++)
+                if(care.count(names_[i]) > 0)
+                {
+                    vis::imshow(names_[i], temp_class.index({Slice(), Slice(), 0, i}), 4);
+                    std::cout << names_[i] << ": " << temp_class.index({Slice(), Slice(), Slice(), i}).max() << std::endl;
+                }
+            cv::waitKey();
 
             // std::cout << "anchorsScaled:" << anchorsScaled << std::endl;
             anchorsScaled = anchorsScaled.view({1, 1, -1, 2});
@@ -355,7 +355,7 @@ namespace pytorch
             // std::cout << "max score: " << max_score << std::endl;
             // std::cout << "max dog: " << max_dog << std::endl;
 
-            std::cout << "#######################################" << std::endl << std::endl;
+            // std::cout << "#######################################" << std::endl << std::endl;
         }
 
         void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override

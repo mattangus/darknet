@@ -130,12 +130,12 @@ int main(int argc, char **argv) {
 
     torch::Device device(torch::kCUDA);
 
-    std::string cfgPath = "cfg/yolov4.cfg";
+    std::string cfgPath = "original_weights/yolov4/yolov4.cfg";
     std::string weightsPath = "original_weights/yolov4/yolov4.weights";
     std::string inputPath = "data/dog.jpg";
-    auto frame = cv::imread(inputPath, -1);
-    // cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-    frame.convertTo(frame, CV_32FC3, 1.0f / 255.0f);
+    auto frame = cv::imread(inputPath);
+    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+    frame.convertTo(frame, CV_32F, 1.0f / 255.0f);
     cv::resize(frame, frame, {512, 512}, 0, 0, cv::INTER_NEAREST);
     
     int frame_w = frame.cols;
@@ -163,23 +163,23 @@ int main(int argc, char **argv) {
 
     model.loadWeights(br);
     model.to(device);
-    // std::cout << model << std::endl;
+    std::cout << model << std::endl;
     // std::cout << "cuda: " << torch::cuda::is_available() << std::endl;
     // std::cout << "cudnn: " << torch::cuda::cudnn_is_available() << std::endl;
     // std::cout << "is_cuda: " << model.parameters().back().is_cuda() << std::endl;
     // auto input = torch::rand({1, 3, 512, 512}, device);
     // std::cout << "input: " << input.device() << std::endl;
-    int n = 10;
-    for(int i = 0; i < 5; i++) // burn in
-        model.forward(input);
-    auto start = std::chrono::high_resolution_clock::now();
-    for(int i = 0; i < n; i++)
-    {
-        auto res = model.forward(input);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> diff = end-start;
-    std::cout << (diff.count() / n) << std::endl;
+    int n = 1;
+    // for(int i = 0; i < 5; i++) // burn in
+    //     model.forward(input);
+    // auto start = std::chrono::high_resolution_clock::now();
+    // for(int i = 0; i < n; i++)
+    // {
+    //     auto res = model.forward(input);
+    // }
+    // auto end = std::chrono::high_resolution_clock::now();
+    // std::chrono::duration<double> diff = end-start;
+    // std::cout << (diff.count() / n) << std::endl;
 
     auto res = model.forward(input);
     // for(int i = 0; i < res.size(); i++)
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
     //     std::cout << res[i].sizes() << std::endl;
     // }
     // std::cout << std::endl;
-    float thresh = 0.1;
+    float thresh = 0.001;
     auto boxes = model.getBoxes(res, {frame_h, frame_w}, thresh);
 
     // for(int i = 0; i < 10; i++)
@@ -215,6 +215,8 @@ int main(int argc, char **argv) {
             }
             // std::cout << "max: " << max << std::endl;
             if(max < thresh)
+                continue;
+            if(class_id != 16)
                 continue;
             auto tl = cv::Point((b.cx - b.w/2)*frame_w, (b.cy - b.h/2)*frame_h);
             auto br = cv::Point((b.cx + b.w/2)*frame_w, (b.cy + b.h/2)*frame_h);

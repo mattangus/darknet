@@ -23,7 +23,7 @@ namespace pytorch
         torch::nn::BatchNorm2d bn{nullptr};
         torch::nn::Conv2d conv{nullptr};
         bool useBn, useAct;
-        // std::shared_ptr<ActivationModule> act;
+        std::shared_ptr<ActivationModule> act{nullptr};
         ActivationType actType;
     public:
         Conv2d(std::shared_ptr<params::ConvParams>& params, std::vector<int>& outputDepths) : DarknetModule("Conv") {
@@ -49,10 +49,10 @@ namespace pytorch
                 bn = register_module("bn", torch::nn::BatchNorm2d(bn_opt));
             }
 
-            // std::stringstream ss;
-            // ss << params->activation;
+            std::stringstream ss;
+            ss << params->activation;
             actType = params->activation;
-            // act = register_module(ss.str(), getActivation(params->activation));
+            act = register_module(ss.str(), getActivation(params->activation));
 
             outputDepths.push_back(params->filters);
         }
@@ -64,8 +64,8 @@ namespace pytorch
             if(useBn)
                 output = bn->forward(output);
 
-            return activate(output, actType);
-            // return act->forward(output);
+            // return activate(output, actType);
+            return act->forward(output);
         }
 
         void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override
