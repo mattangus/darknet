@@ -46,6 +46,7 @@ namespace pytorch
                 bn_opt.eps(0.00001); // line 499 of convolutional_kernels.cu
                 bn_opt.momentum(0.01); // line 496 of same file
                 bn_opt.affine(true);
+                bn_opt.track_running_stats(true);
                 bn = register_module("bn", torch::nn::BatchNorm2d(bn_opt));
             }
 

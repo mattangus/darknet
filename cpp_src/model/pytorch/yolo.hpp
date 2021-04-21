@@ -121,7 +121,7 @@ namespace pytorch
 
             anchors = register_buffer("anchors", torch::from_blob(masked_anchors.data(), {(long)masked_anchors.size()}, torch::kF32).reshape({-1, 2})).to(torch::kCUDA);
             
-            std::cout << "anchors: " << std::endl << anchors << std::endl;
+            // std::cout << "anchors: " << std::endl << anchors << std::endl;
         }
         ~Yolo() {}
 
@@ -132,10 +132,12 @@ namespace pytorch
         torch::Tensor reshapeToAnchors(torch::Tensor ten) {
             auto shape = ten.sizes();
             int nachors = anchors.sizes()[0];
-            torch::Tensor result = ten.reshape({shape[0], -1, shape[2] * shape[3]});
-            result = result.transpose(1, 2).contiguous();
+            return ten.reshape({shape[0], nachors, -1, shape[2], shape[3]}).permute({0, 3, 4, 1, 2}).contiguous();
+            // torch::Tensor result = ten.reshape({shape[0], -1, shape[2], shape[3]});
+            // result = result.permute({0, 2, 3, 1}).contiguous();
             
-            return result.reshape({shape[0], shape[2] * shape[3], nachors, -1});
+            // return result.reshape({shape[0], shape[2], shape[3], nachors, -1});
+            // return result.reshape({shape[0], shape[2] * shape[3] * nachors, -1});
             // return ten.reshape({shape[0], nachors, -1, shape[2], shape[3]});
         }
 
@@ -182,180 +184,222 @@ namespace pytorch
             int grid_x = output.sizes()[2];
             int grid_y = output.sizes()[3];
 
-            output = reshapeToAnchors(output);
 
-            // {
-            //     std::vector<float> bin_in;
-            //     std::stringstream ss;
-            //     ss << "out_" << grid_x << ".npy";
-            //     std::cout << "loading from " << ss.str() << std::endl;
-            //     std::ifstream in(ss.str(), std::ios::binary);
-            //     float f;
-            //     while (in.read(reinterpret_cast<char*>(&f), sizeof(float)))
-            //         bin_in.push_back(f);
-            //     output = torch::from_blob(bin_in.data(), output.sizes(), torch::kF32).to(anchors.device());
-            // }
+            // // std::cout << "output before:" << output.sizes() << std::endl;
+            // // auto output_re = output.view({1, num_anchors, -1, grid_x, grid_y});
+            // // auto cprob = output_re.index({0, Slice(), Slice(4, 5)});
+            // // auto obj = output_re.index({0, Slice(), Slice(5, None)});
+            // // vis::imshow("objectivity_before", std::get<0>((cprob*obj).max(1)).index({0}), 4);
+            // // cv::waitKey();
+
+
+            output = reshapeToAnchors(output);
+            std::cout << "output: " << output.sizes() << std::endl;
+            auto box_xy = output.index(     {Slice(), Slice(), Slice(), Slice(), Slice(0, 2)});
+            auto box_hw = output.index(     {Slice(), Slice(), Slice(), Slice(), Slice(2, 4)});
+            auto objectivity = output.index({Slice(), Slice(), Slice(), Slice(), Slice(4, 5)});
+            auto class_prob = output.index( {Slice(), Slice(), Slice(), Slice(), Slice(5, None)});
+            std::cout << "box_xy: " << box_xy.sizes() << std::endl;
+            std::cout << "box_hw: " << box_hw.sizes() << std::endl;
+            std::cout << "objectivity: " << objectivity.sizes() << std::endl;
+            std::cout << "class_prob: " << class_prob.sizes() << std::endl;
+
+            {
+                std::stringstream ss;
+                ss << "out_" << grid_x << ".pkl";
+                auto pkl = torch::pickle_save(output);
+                std::ofstream out(ss.str());
+                out.write(&pkl[0], pkl.size());
+                out.close();
+            }
+
+            class_prob = torch::sigmoid(class_prob);
+            objectivity = torch::sigmoid(objectivity);
+
+            vis::imshow("obj", std::get<0>(objectivity.index({0, Slice(), Slice(), Slice(), 0}).max(0)), 4);
+
+            std::set<std::string> care = {"dog", "car", "bicycle", "truck"};
+            for(int i = 0; i < names_.size(); i++)
+                if(care.count(names_[i]) > 0)
+                {
+                    vis::imshow(names_[i], std::get<0>((class_prob).index({0, Slice(), Slice(), Slice(), i}).max(0)), 4);
+                    std::cout << names_[i] << ": " << (class_prob*objectivity).index({Slice(), Slice(), Slice(), Slice(), i}).max() << std::endl;
+                }
+            cv::waitKey();
+
+
+            // // {
+            // //     std::vector<float> bin_in;
+            // //     std::stringstream ss;
+            // //     ss << "out_" << grid_x << ".npy";
+            // //     std::cout << "loading from " << ss.str() << std::endl;
+            // //     std::ifstream in(ss.str(), std::ios::binary);
+            // //     float f;
+            // //     while (in.read(reinterpret_cast<char*>(&f), sizeof(float)))
+            // //         bin_in.push_back(f);
+            // //     output = torch::from_blob(bin_in.data(), output.sizes(), torch::kF32).to(anchors.device());
+            // // }
             
-            // torch::Tensor prediction = output.view({batch, bbox_attrs * num_anchors, grid_x * grid_y});
-            // prediction = prediction.transpose(1,2).contiguous();
-            // prediction = prediction.view({batch, grid_x*grid_y, num_anchors, bbox_attrs});
+            // // torch::Tensor prediction = output.view({batch, bbox_attrs * num_anchors, grid_x * grid_y});
+            // // prediction = prediction.transpose(1,2).contiguous();
+            // // prediction = prediction.view({batch, grid_x*grid_y, num_anchors, bbox_attrs});
 
             // std::cout << "output: " << output.sizes() << std::endl;
-            auto box_xy = output.index({Slice(), Slice(), Slice(), Slice(0, 2)});
-            auto box_hw = output.index({Slice(), Slice(), Slice(), Slice(2, 4)});
-            auto objectivity = output.index({Slice(), Slice(), Slice(), Slice(4, 5)});
-            auto class_prob = output.index({Slice(), Slice(), Slice(), Slice(5, None)});
+            // auto box_xy = output.index({Slice(), Slice(), Slice(0, 2)});
+            // auto box_hw = output.index({Slice(), Slice(), Slice(2, 4)});
+            // auto objectivity = output.index({Slice(), Slice(), Slice(4, 5)});
+            // auto class_prob = output.index({Slice(), Slice(),  Slice(5, None)});
             // std::cout << "box_xy: " << box_xy.sizes() << std::endl;
             // std::cout << "box_hw: " << box_hw.sizes() << std::endl;
             // std::cout << "objectivity: " << objectivity.sizes() << std::endl;
             // std::cout << "class_prob: " << class_prob.sizes() << std::endl;
 
-            box_xy = torch::sigmoid(box_xy);
-            if(params->scale_x_y != 1)
-            {
-                float alpha = params->scale_x_y;
-                float beta = -0.5f*(params->scale_x_y - 1);
-                box_xy = (box_xy * alpha) + beta;
-            }
+            // box_xy = torch::sigmoid(box_xy);
+            // if(params->scale_x_y != 1)
+            // {
+            //     float alpha = params->scale_x_y;
+            //     float beta = -0.5f*(params->scale_x_y - 1);
+            //     box_xy = (box_xy * alpha) + beta;
+            // }
 
-            objectivity = torch::sigmoid(objectivity);
-            class_prob = torch::sigmoid(class_prob);
+            // objectivity = torch::sigmoid(objectivity);
+            // class_prob = torch::sigmoid(class_prob);
 
-            // assert(output.dim() == 5);
-            assert(inputSize.size() == 2);
+            // // assert(output.dim() == 5);
+            // // assert(inputSize.size() == 2);
             
-            int start = 0;
-            auto grid_xy = torch::meshgrid({torch::arange(0, grid_x, torch::kF32), torch::arange(0, grid_y, torch::kF32)});
-            auto grid = torch::stack({grid_xy[1], grid_xy[0]}, -1).to(anchors.device()).view({1, grid_x*grid_y, 1, 2});
+            // // int start = 0;
+            // // auto grid_xy = torch::meshgrid({torch::arange(0, grid_x, torch::kF32), torch::arange(0, grid_y, torch::kF32)});
+            // // auto grid = torch::stack({grid_xy[1].view({-1}), grid_xy[0].view({-1})}, -1).to(anchors.device()).repeat({1, num_anchors}).view({-1, 2}).unsqueeze(0);
 
-            auto inSizes = torch::from_blob(inputSize.data(), {(long)inputSize.size()}, torch::kInt32).toType(torch::kF32).to(anchors.device()).toType(torch::kF32);
+            // // auto inSizes = torch::from_blob(inputSize.data(), {(long)inputSize.size()}, torch::kInt32).toType(torch::kF32).to(anchors.device()).toType(torch::kF32);
 
-            std::vector<int> gridS = {grid_x, grid_y};
-            auto gridSizes = torch::from_blob(gridS.data(), {2}, torch::kInt32).toType(torch::kF32).to(anchors.device());
-            gridSizes = gridSizes.view({1, 1, 1, 2});
+            // // std::vector<int> gridS = {grid_x, grid_y};
+            // // auto gridSizes = torch::from_blob(gridS.data(), {2}, torch::kInt32).toType(torch::kF32).to(anchors.device());
+            // // gridSizes = gridSizes.view({1, 1, 1, 2});
 
-            // std::cout << "anchors:" << anchors << std::endl;
-            // std::cout << "inSizes:" << inSizes << std::endl;
+            // // // std::cout << "anchors:" << anchors << std::endl;
+            // // // std::cout << "inSizes:" << inSizes << std::endl;
 
-            auto anchorsScaled = (anchors / inSizes);
+            // // auto anchorsScaled = (anchors / inSizes);
 
             // std::set<std::string> care = {"dog", "car", "bicycle", "truck"};
 
-            // vis::imshow("gridx", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 0}), 4);
-            // vis::imshow("gridy", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 1}), 4);
-            // vis::imshow("objectivity", std::get<0>((class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass}).max(-1)).index({Slice(), Slice(), 0}), 4);
-            // vis::imshow("box_x", box_xy.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 0}), 4);
-            // vis::imshow("box_y", box_xy.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 1}), 4);
-            // vis::imshow("box_h", box_hw.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 0}), 4);
-            // vis::imshow("box_w", box_hw.view({grid_x, grid_y, num_anchors, 2}).index({Slice(), Slice(), 0, 1}), 4);
+            // // vis::imshow("gridx", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 0}), 4);
+            // // vis::imshow("gridy", grid.view({grid_x, grid_y, 2}).index({Slice(), Slice(), 1}), 4);
+            // // vis::imshow("objectivity", std::get<0>((class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass}).max(-1)).index({Slice(), Slice(), 0}), 4);
+            // // vis::imshow("box_x", box_xy.view({grid_x, grid_y, 2, num_anchors}).index({Slice(), Slice(), 0, 0}), 4);
+            // // vis::imshow("box_y", box_xy.view({grid_x, grid_y, 2, num_anchors}).index({Slice(), Slice(), 1, 0}), 4);
+            // // vis::imshow("box_h", box_hw.reshape({grid_x, grid_y, 2, num_anchors}).index({Slice(), Slice(), 0, 0}), 4);
+            // // vis::imshow("box_w", box_hw.reshape({grid_x, grid_y, 2, num_anchors}).index({Slice(), Slice(), 1, 0}), 4);
 
-            // auto temp_class = (class_prob*objectivity).view({grid_x, grid_y, num_anchors, numClass});
+            // // auto temp_class = (class_prob*objectivity).view({grid_x, grid_y, numClass, num_anchors});
             // for(int i = 0; i < names_.size(); i++)
             //     if(care.count(names_[i]) > 0)
             //     {
-            //         vis::imshow(names_[i], temp_class.index({Slice(), Slice(), 0, i}), 4);
-            //         std::cout << names_[i] << ": " << temp_class.index({Slice(), Slice(), Slice(), i}).max() << std::endl;
+            //         // vis::imshow(names_[i], temp_class.index({Slice(), Slice(), i, 0}), 4);
+            //         std::cout << names_[i] << ": " << (class_prob*objectivity).index({Slice(), Slice(), Slice(), i}).max() << std::endl;
             //     }
-            // cv::waitKey();
+            // // cv::waitKey();
 
-            // std::cout << "anchorsScaled:" << anchorsScaled << std::endl;
-            anchorsScaled = anchorsScaled.view({1, 1, -1, 2});
-            // std::cout << "anchorsScaled: " << anchorsScaled.sizes() << std::endl;
+            // // std::cout << "anchorsScaled:" << anchorsScaled << std::endl;
+            // // anchorsScaled = anchorsScaled.view({1, 1, 2, -1});
+            // // std::cout << "anchorsScaled: " << anchorsScaled.sizes() << std::endl;
 
-            box_hw = torch::exp(box_hw) * anchorsScaled;
+            // // box_hw = torch::exp(box_hw) * anchorsScaled;
 
-            // std::cout << "grid: " << grid.sizes() << std::endl;
-            // std::cout << "gridSizes: " << gridSizes << std::endl;
-            // std::cout << "gridSizes: " << gridSizes.sizes() << std::endl;
+            // // std::cout << "grid: " << grid.sizes() << std::endl;
+            // // std::cout << "gridSizes: " << gridSizes << std::endl;
+            // // std::cout << "gridSizes: " << gridSizes.sizes() << std::endl;
 
-            // std::cout << class_prob.sizes() << std::endl;
+            // // // std::cout << class_prob.sizes() << std::endl;
 
-            box_xy = (box_xy + grid) / gridSizes;
-            // box_xy = (grid) / gridSizes;
-            // std::cout << box_xy << std::endl;
+            // // box_xy = (box_xy + grid) / gridSizes;
+            // // // box_xy = (grid) / gridSizes;
+            // // // std::cout << box_xy << std::endl;
             
-            // auto mask = objectivity > thresh;
-            // std::cout << "mask: " << mask.sizes() << std::endl;
-            // // vis::imshow("mask", mask.index({0,0,0}).to(torch::kFloat32));
-            // mask = mask.reshape({batch, -1});
-            // box_xy = box_xy.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask).reshape({batch, -1, 2});
-            // box_hw = box_hw.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask).reshape({batch, -1, 2});
-            // objectivity = objectivity.reshape({batch, -1, 1}).index(mask);
-            // class_prob = class_prob.permute({0,1,3,4,2}).reshape({batch, -1, numClass}).index(mask).reshape({batch, -1, numClass}) * objectivity;
-            // class_prob = class_prob*objectivity;
+            // // // auto mask = objectivity > thresh;
+            // // // std::cout << "mask: " << mask.sizes() << std::endl;
+            // // // // vis::imshow("mask", mask.index({0,0,0}).to(torch::kFloat32));
+            // // // mask = mask.reshape({batch, -1});
+            // // // box_xy = box_xy.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask).reshape({batch, -1, 2});
+            // // // box_hw = box_hw.permute({0,1,3,4,2}).reshape({batch, -1, 2}).index(mask).reshape({batch, -1, 2});
+            // // // objectivity = objectivity.reshape({batch, -1, 1}).index(mask);
+            // // // class_prob = class_prob.permute({0,1,3,4,2}).reshape({batch, -1, numClass}).index(mask).reshape({batch, -1, numClass}) * objectivity;
+            // // // class_prob = class_prob*objectivity;
 
-            // auto pkl = torch::pickle_save(output);
-            // std::ofstream out("out.pkl");
-            // out.write(&pkl[0], pkl.size());
-            // out.close();
-            // box_xy = box_xy.permute({0,1,3,4,2});
-            // box_hw = box_hw.permute({0,1,3,4,2});
-            // std::cout << "permute boxes: " << box_xy.sizes() << std::endl;
+            // // // auto pkl = torch::pickle_save(output);
+            // // // std::ofstream out("out.pkl");
+            // // // out.write(&pkl[0], pkl.size());
+            // // // out.close();
+            // // // box_xy = box_xy.permute({0,1,3,4,2});
+            // // // box_hw = box_hw.permute({0,1,3,4,2});
+            // // // std::cout << "permute boxes: " << box_xy.sizes() << std::endl;
 
-            auto box_xy_cpu = box_xy.detach().reshape({batch, -1, 2}).to(torch::kCPU);
-            auto box_hw_cpu = box_hw.detach().reshape({batch, -1, 2}).to(torch::kCPU);
-            auto class_prob_cpu = (class_prob*objectivity).detach().reshape({batch, -1, numClass}).to(torch::kCPU);
+            // // auto box_xy_cpu = box_xy.detach().reshape({batch, -1, 2}).to(torch::kCPU);
+            // // auto box_hw_cpu = box_hw.detach().reshape({batch, -1, 2}).to(torch::kCPU);
+            // // auto class_prob_cpu = (class_prob*objectivity).detach().reshape({batch, -1, numClass}).to(torch::kCPU);
 
-            auto maxes = class_prob_cpu.index({0, Slice(), 16}).max(0);
-            float max_val = std::get<0>(maxes).item<float>();
-            int max_loc = std::get<1>(maxes).item<float>();
+            // // auto maxes = class_prob_cpu.index({0, Slice(), 16}).max(0);
+            // // float max_val = std::get<0>(maxes).item<float>();
+            // // int max_loc = std::get<1>(maxes).item<float>();
 
-            // std::cout << "max dog cpu: " << max_val << std::endl;
-            // std::cout << "max dog loc: " << max_loc << std::endl;
+            // // // std::cout << "max dog cpu: " << max_val << std::endl;
+            // // // std::cout << "max dog loc: " << max_loc << std::endl;
 
-            // std::cout << "class_prob_cpu: " << class_prob_cpu.sizes() << std::endl;
+            // // // std::cout << "class_prob_cpu: " << class_prob_cpu.sizes() << std::endl;
 
-            int numDet = class_prob_cpu.sizes()[1];
+            // // int numDet = class_prob_cpu.sizes()[1];
 
-            if(outputBoxes.size() != batch)
-                outputBoxes.resize(batch);
+            // // if(outputBoxes.size() != batch)
+            // //     outputBoxes.resize(batch);
 
-            // float max_score = -1;
-            // float max_dog = -1;
-            for(int b = 0; b < batch; b++)
-            {
-                outputBoxes[b].reserve(numDet);
-                for(int i = 0; i < numDet; i++)
-                {
-                    auto cur_scores = class_prob_cpu.index({b, i});
-                    std::vector<float> scores(cur_scores.numel());
-                    std::memcpy((void *) scores.data(), cur_scores.data_ptr(), sizeof(float) * cur_scores.numel());
+            // // // float max_score = -1;
+            // // // float max_dog = -1;
+            // // for(int b = 0; b < batch; b++)
+            // // {
+            // //     outputBoxes[b].reserve(numDet);
+            // //     for(int i = 0; i < numDet; i++)
+            // //     {
+            // //         auto cur_scores = class_prob_cpu.index({b, i});
+            // //         std::vector<float> scores(cur_scores.numel());
+            // //         std::memcpy((void *) scores.data(), cur_scores.data_ptr(), sizeof(float) * cur_scores.numel());
 
-                    auto x = box_xy_cpu[b][i][0];
-                    auto y = box_xy_cpu[b][i][1];
-                    auto h = box_hw_cpu[b][i][0];
-                    auto w = box_hw_cpu[b][i][1];
+            // //         auto x = box_xy_cpu[b][i][0];
+            // //         auto y = box_xy_cpu[b][i][1];
+            // //         auto h = box_hw_cpu[b][i][0];
+            // //         auto w = box_hw_cpu[b][i][1];
 
-                    // max_dog = std::max(max_dog, scores[16]);
+            // //         // max_dog = std::max(max_dog, scores[16]);
 
-                    BoundingBox box(x.item<float>(), y.item<float>(), w.item<float>(), h.item<float>());
+            // //         BoundingBox box(x.item<float>(), y.item<float>(), w.item<float>(), h.item<float>());
 
-                    // auto result = std::max_element(scores.begin(), scores.end());
-                    // int ind = std::distance(scores.begin(), result);
-                    // auto top_score = *result;
-                    // if(top_score>max_score)
-                    //     max_score = top_score;
-                    // if(top_score > 0.8)
-                    // {
-                    //     std::cout << names_[ind] << ": " << top_score << std::endl;
-                    // }
-                    // if(i == max_loc)
-                    // {
-                    //     std::cout << "torch: " << cur_scores << std::endl;
-                    //     std::cout << "vector: ";
-                    //     for(int j = 0; j < scores.size(); j++)
-                    //         std::cout << scores[j] << ", ";
-                    //     std::cout << std::endl;
-                    // }
+            // //         // auto result = std::max_element(scores.begin(), scores.end());
+            // //         // int ind = std::distance(scores.begin(), result);
+            // //         // auto top_score = *result;
+            // //         // if(top_score>max_score)
+            // //         //     max_score = top_score;
+            // //         // if(top_score > 0.8)
+            // //         // {
+            // //         //     std::cout << names_[ind] << ": " << top_score << std::endl;
+            // //         // }
+            // //         // if(i == max_loc)
+            // //         // {
+            // //         //     std::cout << "torch: " << cur_scores << std::endl;
+            // //         //     std::cout << "vector: ";
+            // //         //     for(int j = 0; j < scores.size(); j++)
+            // //         //         std::cout << scores[j] << ", ";
+            // //         //     std::cout << std::endl;
+            // //         // }
 
-                    outputBoxes[b].push_back(Detection(box, scores));
-                }
-            }
+            // //         outputBoxes[b].push_back(Detection(box, scores));
+            // //     }
+            // // }
 
-            // std::cout << "max score: " << max_score << std::endl;
-            // std::cout << "max dog: " << max_dog << std::endl;
+            // // std::cout << "max score: " << max_score << std::endl;
+            // // std::cout << "max dog: " << max_dog << std::endl;
 
-            // std::cout << "#######################################" << std::endl << std::endl;
+            // // std::cout << "#######################################" << std::endl << std::endl;
         }
 
         void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override

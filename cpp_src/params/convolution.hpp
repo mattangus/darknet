@@ -58,7 +58,7 @@ namespace params
                 
             bool pad = strParams.get<bool>("pad", false);
             int padding = strParams.get<int>("padding", 0);
-            if(pad) ret->padding = ret->kernelSize / 2;
+            if(pad) ret->padding = (ret->kernelSize - 1) / 2;
 
             ret->filters = strParams.get<int>("filters", 0);
             auto activation = strParams.get<std::string>("activation", "logistic");
