@@ -1,9 +1,14 @@
 #pragma once
 
 #include <torch/torch.h>
+#include <torch/jit.h>
 #include "params/layers.hpp"
 #include "model/pytorch/dark_module.hpp"
 #include "model/pytorch/activation.hpp"
+
+#include "utils/vis.hpp"
+
+using namespace torch::indexing;
 
 namespace darknet
 {
@@ -68,16 +73,23 @@ namespace pytorch
 
             if(useBn)
             {
-                loadIntoTensor(&(bn->bias), weightsReader);
-                loadIntoTensor(&(bn->weight), weightsReader);
-                loadIntoTensor(&(bn->running_mean), weightsReader);
-                loadIntoTensor(&(bn->running_var), weightsReader);
+                loadIntoTensor(bn->bias, weightsReader);
+                loadIntoTensor(bn->weight, weightsReader);
+                loadIntoTensor(bn->running_mean, weightsReader);
+                loadIntoTensor(bn->running_var, weightsReader);
             }
             else
             {
-                loadIntoTensor(&(conv->bias), weightsReader);
+                loadIntoTensor(conv->bias, weightsReader);
             }
-            loadIntoTensor(&(conv->weight), weightsReader);
+            loadIntoTensor(conv->weight, weightsReader);
+            // auto pkl = torch::pickle_save(conv->weight);
+            // std::ofstream out("out.pkl");
+            // out.write(&pkl[0], pkl.size());
+            // out.close();
+            
+
+            // vis::imshow("test", conv->weight.index({0, 0, Slice(), Slice()}));
         }
 
     };

@@ -50,7 +50,17 @@ namespace pytorch
                 // std::cout << i << " " << modules[i]->name << " " << outputs.back().sizes() << std::endl;
             }
 
+            auto pkl = torch::pickle_save(outputs);
+            std::ofstream out("out.pkl");
+            out.write(&pkl[0], pkl.size());
+            out.close();
+
             return ret;
+        }
+
+        torch::Tensor getOutput(int i)
+        {
+            return outputs[i];
         }
 
         std::vector<std::vector<Detection>> getBoxes(std::vector<torch::Tensor> outputs, std::vector<int> inputSize, float thresh)
