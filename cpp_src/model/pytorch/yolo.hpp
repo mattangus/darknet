@@ -296,9 +296,9 @@ namespace pytorch
             auto box_hw_cpu = box_hw.detach().reshape({batch, -1, 2}).to(torch::kCPU);
             auto class_prob_cpu = (class_prob*objectivity).detach().reshape({batch, -1, numClass}).to(torch::kCPU);
 
-            // auto maxes = class_prob_cpu.index({0, Slice(), 16}).max(0);
-            // float max_val = std::get<0>(maxes).item<float>();
-            // int max_loc = std::get<1>(maxes).item<float>();
+            auto maxes = class_prob_cpu.index({0, Slice(), 16}).max(0);
+            float max_val = std::get<0>(maxes).item<float>();
+            int max_loc = std::get<1>(maxes).item<float>();
 
             // std::cout << "max dog cpu: " << max_val << std::endl;
             // std::cout << "max dog loc: " << max_loc << std::endl;
@@ -355,7 +355,7 @@ namespace pytorch
             // std::cout << "max score: " << max_score << std::endl;
             // std::cout << "max dog: " << max_dog << std::endl;
 
-            std::cout << "#######################################" << std::endl << std::endl;
+            // std::cout << "#######################################" << std::endl << std::endl;
         }
 
         void loadWeights(std::shared_ptr<weights::BinaryReader>& weightsReader) override

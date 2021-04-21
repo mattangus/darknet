@@ -134,9 +134,11 @@ int main(int argc, char **argv) {
     std::string weightsPath = "original_weights/yolov4/yolov4.weights";
     std::string inputPath = "data/dog.jpg";
     auto frame = cv::imread(inputPath, -1);
-    // cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
     frame.convertTo(frame, CV_32FC3, 1.0f / 255.0f);
     cv::resize(frame, frame, {512, 512}, 0, 0, cv::INTER_NEAREST);
+
+    // std::cout << frame << std::endl;
     
     int frame_w = frame.cols;
     int frame_h = frame.rows;

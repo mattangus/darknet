@@ -88,8 +88,15 @@ namespace pytorch
             // out.write(&pkl[0], pkl.size());
             // out.close();
             
-
+            // std::cout << conv->weight.index({0, 0, Slice(), Slice()}) << std::endl << std::endl;
+            // std::cout << bn->weight.index({Slice(0, 3)}) << std::endl;
+            // std::cout << bn->bias.index({Slice(0, 3)}) << std::endl;
+            // std::cout << bn->running_mean.index({Slice(0, 3)}) << std::endl;
+            // std::cout << bn->running_var.index({Slice(0, 3)}) << std::endl;
             // vis::imshow("test", conv->weight.index({0, 0, Slice(), Slice()}));
+            // cv::waitKey();
+
+            return;
         }
 
     };
